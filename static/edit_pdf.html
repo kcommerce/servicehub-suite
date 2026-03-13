@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit PDF Service</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        main { flex: 1; display: flex; overflow: hidden; }
+        .sidebar {
+            width: 350px;
+            background: #fff;
+            border-right: 1px solid #eee;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            overflow-y: auto;
+        }
+        .canvas-container {
+            flex: 1;
+            background: #e9ecef;
+            padding: 2rem;
+            overflow-y: auto;
+            position: relative;
+            display: block;
+        }
+        .page-wrapper {
+            position: relative;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin: 0 auto 2rem auto;
+            display: block;
+            flex-shrink: 0;
+        }
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            text-align: left;
+        }
+        .control-item label { font-weight: 600; font-size: 0.85rem; color: #2d3436; }
+        input, select { padding: 0.6rem; border: 1px solid #dfe6e9; border-radius: 8px; width: 100%; }
+        
+        .zoom-controls { display: flex; gap: 0.5rem; margin-top: 0.2rem; }
+        .zoom-btn {
+            flex: 1; padding: 0.5rem; border: 1px solid #dfe6e9;
+            background: #f8f9fa; border-radius: 6px; cursor: pointer;
+            font-size: 0.8rem; font-weight: 600;
+        }
+        .zoom-btn:hover { background: #e2e6ea; }
+
+        .hint {
+            font-size: 0.8rem; color: #636e72; background: #fff9db;
+            padding: 0.8rem; border-radius: 8px; border-left: 4px solid #fcc419;
+        }
+        .loader-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div id="loader" class="loader-overlay">
+        <div style="text-align: center;">
+            <div class="spinner" style="margin: auto;"></div>
+            <p id="loader-text" style="margin-top: 1rem; font-weight: 600; color: var(--primary);">Processing PDF...</p>
+        </div>
+    </div>
+
+    <main>
+        <div class="sidebar">
+            <section class="upload-section">
+                <label for="pdfUpload" class="upload-btn">
+                    <span>📁 Upload PDF File</span>
+                    <input type="file" id="pdfUpload" accept=".pdf" hidden>
+                </label>
+            </section>
+
+            <div class="control-item">
+                <label>Zoom Level: <span id="zoomPercent">100</span>%</label>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="adjustZoom(-0.1)">➖ Out</button>
+                    <button class="zoom-btn" onclick="adjustZoom(0.1)">➕ In</button>
+                    <button class="zoom-btn" onclick="resetZoom()">🔄 Reset</button>
+                </div>
+            </div>
+
+            <div id="page-info" class="control-item" style="display: none;">
+                <label>Total Pages: <span id="totalPages">0</span></label>
+            </div>
+
+            <div class="control-item">
+                <label>Text Content</label>
+                <input type="text" id="textContent" value="Approved ✅">
+            </div>
+
+            <div class="control-item">
+                <label>Initial Font Size (px)</label>
+                <input type="number" id="fontSize" value="40" min="10">
+            </div>
+
+            <div class="control-item">
+                <label>Text Color</label>
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                    <input type="color" id="textColor" value="#e74c3c" style="width: 50px; height: 40px; padding: 2px; border: 1px solid #dfe6e9; border-radius: 4px; cursor: pointer;">
+                    <div id="colorPreview" style="flex: 1; height: 40px; background: #e74c3c; border-radius: 4px; border: 1px solid #dfe6e9; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; color: white; text-shadow: 0 0 3px rgba(0,0,0,0.5);">
+                        rgb(231, 76, 60)
+                    </div>
+                </div>
+                <div id="colorPresets" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="hint">
+                💡 <b>Pro Tips:</b><br>
+                • Click to add text<br>
+                • Drag text to <b>move</b><br>
+                • Drag the <b style="color:var(--primary)">blue dot</b> to <b>resize</b>
+            </div>
+
+            <section class="actions">
+                <button id="downloadBtn" class="download-btn" disabled>🚀 Save & Download PDF</button>
+            </section>
+        </div>
+
+        <div class="canvas-container" id="pages-container">
+            <div id="no-pdf-msg" style="color: #adb5bd; text-align: center; margin-top: 10rem;">
+                <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">PDF Editor</h2>
+                <p>Upload a document to start editing pages</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const pdfUpload = document.getElementById('pdfUpload');
+        const pagesContainer = document.getElementById('pages-container');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loader = document.getElementById('loader');
+        const loaderText = document.getElementById('loader-text');
+        const zoomPercent = document.getElementById('zoomPercent');
+        
+        const textInput = document.getElementById('textContent');
+        const fontSizeInput = document.getElementById('fontSize');
+        const colorInput = document.getElementById('textColor');
+        const colorPreview = document.getElementById('colorPreview');
+        const colorPresetsGrid = document.getElementById('colorPresets');
+
+        const presets = [
+            '#000000', '#555555', '#e74c3c', '#e67e22', '#f1c40f',
+            '#2ecc71', '#1abc9c', '#3498db', '#9b59b6', '#34495e',
+            '#ffffff', '#ecf0f1', '#d35400', '#c0392b', '#2980b9'
+        ];
+
+        presets.forEach(color => {
+            const swatch = document.createElement('div');
+            swatch.style.cssText = `height: 25px; background: ${color}; border: 1px solid #dfe6e9; border-radius: 4px; cursor: pointer;`;
+            swatch.onclick = () => {
+                colorInput.value = color;
+                updateColorUI(color);
+            };
+            colorPresetsGrid.appendChild(swatch);
+        });
+
+        function updateColorUI(hex) {
+            colorPreview.style.background = hex;
+            const r = parseInt(hex.substring(1, 3), 16);
+            const g = parseInt(hex.substring(3, 5), 16);
+            const b = parseInt(hex.substring(5, 7), 16);
+            colorPreview.textContent = `rgb(${r}, ${g}, ${b})`;
+            colorPreview.style.color = (r*0.299 + g*0.587 + b*0.114) > 186 ? 'black' : 'white';
+        }
+
+        let pdfFile = null;
+        let pagesData = []; 
+        let draggingEdit = null;
+        let resizingEdit = null;
+        let dragOffsetX = 0, dragOffsetY = 0;
+        let startResizeSize = 0, startResizeY = 0;
+        let currentZoom = 1.0;
+
+        colorInput.addEventListener('input', (e) => {
+            updateColorUI(e.target.value);
+        });
+
+        pdfUpload.addEventListener('change', async (e) => {
+            if (e.target.files.length > 0) {
+                pdfFile = e.target.files[0];
+                renderPdf();
+            }
+        });
+
+        async function renderPdf() {
+            loader.style.display = 'flex';
+            loaderText.textContent = 'Preparing PDF pages...';
+            const formData = new FormData();
+            formData.append('file', pdfFile);
+
+            try {
+                const response = await fetch('/render-pdf', { method: 'POST', body: formData });
+                const data = await response.json();
+                console.log(`DEBUG: Received ${data.pages.length} pages from server`);
+                pagesContainer.innerHTML = '';
+                pagesData = [];
+                document.getElementById('page-info').style.display = 'block';
+                document.getElementById('totalPages').textContent = data.pages.length;
+
+                for (const p of data.pages) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'page-wrapper';
+                    const canvas = document.createElement('canvas');
+                    canvas.width = p.width;
+                    canvas.height = p.height;
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    const pageInfo = {
+                        page_num: p.page_num,
+                        orig_w: p.width,
+                        orig_h: p.height,
+                        img: img,
+                        canvas: canvas,
+                        ctx: ctx,
+                        edits: []
+                    };
+                    img.onload = () => { ctx.drawImage(img, 0, 0); };
+                    img.src = p.image;
+                    canvas.addEventListener('mousedown', (e) => handleMouseDown(e, pageInfo));
+                    wrapper.appendChild(canvas);
+                    pagesContainer.appendChild(wrapper);
+                    pagesData.push(pageInfo);
+                }
+                currentZoom = 1.0;
+                updateZoomUI();
+                downloadBtn.disabled = false;
+            } catch (err) { alert('Error rendering PDF'); } finally { loader.style.display = 'none'; }
+        }
+
+        function adjustZoom(delta) {
+            currentZoom = Math.max(0.2, Math.min(3, currentZoom + delta));
+            updateZoomUI();
+        }
+
+        function resetZoom() {
+            currentZoom = 1.0;
+            updateZoomUI();
+        }
+
+        function updateZoomUI() {
+            pagesData.forEach(p => {
+                p.canvas.style.width = (p.orig_w * currentZoom / 2) + 'px';
+                p.canvas.style.height = (p.orig_h * currentZoom / 2) + 'px';
+            });
+            zoomPercent.textContent = Math.round(currentZoom * 100);
+        }
+
+        function handleMouseDown(e, page) {
+            const rect = page.canvas.getBoundingClientRect();
+            const mouseX = (e.clientX - rect.left) * (page.canvas.width / rect.width);
+            const mouseY = (e.clientY - rect.top) * (page.canvas.height / rect.height);
+
+            for (let i = page.edits.length - 1; i >= 0; i--) {
+                const ed = page.edits[i];
+                page.ctx.font = `${ed.fontSize}px Sarabun`;
+                const metrics = page.ctx.measureText(ed.text);
+                const w = metrics.width;
+                const h = ed.fontSize;
+
+                // Check Handle (Circle at bottom right of text)
+                const handleX = ed.x + w/2 + 10;
+                const handleY = ed.y + h/2 + 10;
+                const dist = Math.sqrt((mouseX - handleX)**2 + (mouseY - handleY)**2);
+                
+                if (dist < 15) {
+                    resizingEdit = { page, edit: ed };
+                    startResizeSize = ed.fontSize;
+                    startResizeY = mouseY;
+                    return;
+                }
+
+                // Check Move
+                if (mouseX >= ed.x - w/2 && mouseX <= ed.x + w/2 && 
+                    mouseY >= ed.y - h/2 && mouseY <= ed.y + h/2) {
+                    draggingEdit = { page, edit: ed };
+                    dragOffsetX = mouseX - ed.x;
+                    dragOffsetY = mouseY - ed.y;
+                    return;
+                }
+            }
+
+            const newEdit = {
+                text: textInput.value,
+                fontSize: parseInt(fontSizeInput.value),
+                color: colorInput.value,
+                x: mouseX,
+                y: mouseY
+            };
+            page.edits.push(newEdit);
+            drawPage(page);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            if (draggingEdit) {
+                const { page, edit } = draggingEdit;
+                const rect = page.canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left) * (page.canvas.width / rect.width);
+                const mouseY = (e.clientY - rect.top) * (page.canvas.height / rect.height);
+                edit.x = mouseX - dragOffsetX;
+                edit.y = mouseY - dragOffsetY;
+                drawPage(page);
+            } else if (resizingEdit) {
+                const { page, edit } = resizingEdit;
+                const rect = page.canvas.getBoundingClientRect();
+                const mouseY = (e.clientY - rect.top) * (page.canvas.height / rect.height);
+                const diff = mouseY - startResizeY;
+                edit.fontSize = Math.max(10, startResizeSize + diff);
+                drawPage(page);
+            }
+        });
+
+        window.addEventListener('mouseup', () => { 
+            draggingEdit = null; 
+            resizingEdit = null;
+        });
+
+        function drawPage(page) {
+            page.ctx.clearRect(0, 0, page.canvas.width, page.canvas.height);
+            page.ctx.drawImage(page.img, 0, 0);
+            page.edits.forEach(ed => {
+                page.ctx.font = `${ed.fontSize}px Sarabun`;
+                page.ctx.fillStyle = ed.color;
+                page.ctx.textAlign = 'center';
+                page.ctx.textBaseline = 'middle';
+                page.ctx.fillText(ed.text, ed.x, ed.y);
+
+                // Draw Resize Handle
+                const metrics = page.ctx.measureText(ed.text);
+                const handleX = ed.x + metrics.width/2 + 10;
+                const handleY = ed.y + ed.fontSize/2 + 10;
+                
+                page.ctx.beginPath();
+                page.ctx.arc(handleX, handleY, 8, 0, Math.PI * 2);
+                page.ctx.fillStyle = '#6c5ce7';
+                page.ctx.fill();
+                page.ctx.strokeStyle = 'white';
+                page.ctx.lineWidth = 2;
+                page.ctx.stroke();
+            });
+        }
+
+        downloadBtn.addEventListener('click', async () => {
+            loader.style.display = 'flex';
+            loaderText.textContent = 'Generating final PDF...';
+            const allEdits = pagesData.flatMap(p => p.edits.map(ed => ({
+                page_num: p.page_num,
+                text: ed.text,
+                x: ed.x,
+                y: ed.y,
+                font_size: ed.fontSize,
+                color: ed.color,
+                canvas_w: p.canvas.width,
+                canvas_h: p.canvas.height
+            })));
+            const formData = new FormData();
+            formData.append('file', pdfFile);
+            formData.append('edits_json', JSON.stringify(allEdits));
+            try {
+                const response = await fetch('/save-pdf', { method: 'POST', body: formData });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `edited_${pdfFile.name}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else { alert('Error saving PDF'); }
+            } catch (err) { alert('Connection error'); } finally { loader.style.display = 'none'; }
+        });
+    </script>
+</body>
+</html>

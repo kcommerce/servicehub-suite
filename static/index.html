@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Service Portal</title>
+    <link rel="stylesheet" href="/static/css/portal.css">
+</head>
+<body>
+    <div class="portal-container">
+        <header class="top-frame">
+            <div class="portal-logo">ServiceHub Studio <span>🚀</span></div>
+            <nav class="service-nav">
+                <button onclick="loadService('/crop-service')" class="service-btn">
+                    <span class="icon">✨</span> Crop Master
+                </button>
+                <button onclick="loadService('/pdf-compressor')" class="service-btn">
+                    <span class="icon">📄</span> PDF Compressor
+                </button>
+                <button onclick="loadService('/edit-pdf')" class="service-btn">
+                    <span class="icon">✍️</span> Edit PDF
+                </button>
+                <button onclick="loadService('/png-to-jpg')" class="service-btn">
+                    <span class="icon">🖼️</span> PNG->JPG
+                </button>
+                <button onclick="loadService('/jpg-to-png')" class="service-btn">
+                    <span class="icon">🖼️</span> JPG->PNG
+                </button>
+                <button onclick="loadService('/rotate-flip')" class="service-btn">
+                    <span class="icon">🔄</span> Rotate/Flip
+                </button>
+                <button onclick="loadService('/design-tool')" class="service-btn">
+                    <span class="icon">🎨</span> Design Tool
+                </button>
+                <button class="service-btn disabled" title="Coming Soon">
+                    <span class="icon">📁</span> More Soon...
+                </button>
+            </nav>
+        </header>
+        
+        <main class="bottom-frame">
+            <iframe id="service-content" src="" frameborder="0"></iframe>
+            <div id="welcome-message" class="welcome">
+                <h2>Welcome to ServiceHub Studio</h2>
+                <p>Select a professional service from the top menu to get started.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function loadService(url) {
+            document.getElementById('welcome-message').style.display = 'none';
+            const iframe = document.getElementById('service-content');
+            iframe.style.display = 'block';
+            iframe.src = url;
+        }
+    </script>
+</body>
+</html>

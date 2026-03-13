@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Crop Service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <main>
+        <div class="sidebar">
+            <section class="upload-section">
+                <label for="imageUpload" class="upload-btn">
+                    <span>📁 Upload Image</span>
+                    <input type="file" id="imageUpload" accept="image/*" hidden>
+                </label>
+            </section>
+
+            <section class="presets-container">
+                <h3>Basic Aspect Ratios</h3>
+                <div class="preset-group" data-type="ratio">
+                    <button class="preset-btn active" data-ratio="NaN">Free</button>
+                    <button class="preset-btn" data-ratio="1">1:1 Square</button>
+                    <button class="preset-btn" data-ratio="1.3333333333333333">4:3 Camera</button>
+                    <button class="preset-btn" data-ratio="1.5">3:2 DSLR</button>
+                    <button class="preset-btn" data-ratio="1.7777777777777777">16:9 Wide</button>
+                    <button class="preset-btn" data-ratio="0.5625">9:16 Mobile</button>
+                    <button class="preset-btn" data-ratio="0.8">4:5 Portrait</button>
+                </div>
+
+                <h3>Social Media</h3>
+                <div class="preset-group" data-type="social">
+                    <button class="preset-btn" data-ratio="1" data-w="1080" data-h="1080">Instagram Post</button>
+                    <button class="preset-btn" data-ratio="0.8" data-w="1080" data-h="1350">IG Portrait</button>
+                    <button class="preset-btn" data-ratio="0.5625" data-w="1080" data-h="1920">IG Story</button>
+                    <button class="preset-btn" data-ratio="2.628205128205128" data-w="820" data-h="312">FB Cover</button>
+                    <button class="preset-btn" data-ratio="4" data-w="1584" data-h="396">LinkedIn Banner</button>
+                    <button class="preset-btn" data-ratio="1.7777777777777777" data-w="1280" data-h="720">YT Thumbnail</button>
+                    <button class="preset-btn" data-ratio="3" data-w="1500" data-h="500">Twitter Header</button>
+                </div>
+
+                <h3>ID & Passport</h3>
+                <div class="preset-group" data-type="id">
+                    <button class="preset-btn" data-ratio="1" data-w="600" data-h="600">US Passport</button>
+                    <button class="preset-btn" data-ratio="0.7777777777777778" data-w="413" data-h="531">EU Passport</button>
+                    <button class="preset-btn" data-ratio="0.6666666666666666" data-w="1200" data-h="1800">4x6 inch</button>
+                    <button class="preset-btn" data-ratio="0.7142857142857143" data-w="1500" data-h="2100">5x7 inch</button>
+                </div>
+            </section>
+
+            <section class="actions">
+                <button id="cropBtn" class="crop-btn" disabled>✨ Apply Crop</button>
+                <button id="downloadBtn" class="download-btn" disabled>🚀 Download Crop</button>
+            </section>
+        </div>
+
+        <div class="canvas-container">
+            <div id="image-wrapper">
+                <div class="placeholder-text">Upload an image to start cropping</div>
+                <img id="image" src="" alt="">
+            </div>
+            
+            <div id="preview-section" class="hidden">
+                <h3>Preview Result</h3>
+                <div class="preview-card">
+                    <img id="preview-image" src="" alt="Cropped Preview">
+                    <button id="closePreview" class="close-btn">&times;</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="/static/js/script.js"></script>
+</body>
+</html>

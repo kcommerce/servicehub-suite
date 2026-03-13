@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNG to JPG Converter</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .converter-container {
+            padding: 3rem;
+            max-width: 600px;
+            margin: auto;
+            text-align: center;
+        }
+        .quality-slider {
+            margin-top: 2rem;
+            width: 100%;
+        }
+        .quality-label {
+            margin-top: 1rem;
+            display: block;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .file-info {
+            margin-top: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="converter-container">
+            <h1>🖼️ PNG to JPG Converter</h1>
+            <p>Convert your PNG images to JPEG format instantly.</p>
+            
+            <section class="upload-section" style="margin-top: 2rem;">
+                <label for="pngUpload" class="upload-btn">
+                    <span>📁 Upload PNG</span>
+                    <input type="file" id="pngUpload" accept="image/png" hidden>
+                </label>
+                <div id="fileInfo" class="file-info"></div>
+            </section>
+
+            <section class="options-group" style="margin-top: 2rem;">
+                <label for="qualityRange" class="quality-label">Quality: <span id="qualityVal">85</span>%</label>
+                <input type="range" id="qualityRange" class="quality-slider" min="10" max="100" value="85">
+            </section>
+
+            <section class="actions" style="margin-top: 2rem;">
+                <button id="convertBtn" class="download-btn" disabled>🚀 Convert & Download</button>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const pngUpload = document.getElementById('pngUpload');
+        const fileInfo = document.getElementById('fileInfo');
+        const convertBtn = document.getElementById('convertBtn');
+        const qualityRange = document.getElementById('qualityRange');
+        const qualityVal = document.getElementById('qualityVal');
+        
+        let selectedFile = null;
+
+        qualityRange.addEventListener('input', (e) => {
+            qualityVal.textContent = e.target.value;
+        });
+
+        pngUpload.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                fileInfo.textContent = `Selected: ${selectedFile.name}`;
+                convertBtn.disabled = false;
+            }
+        });
+
+        convertBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            
+            convertBtn.textContent = '⏳ Converting...';
+            convertBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('quality', qualityRange.value);
+
+            try {
+                const response = await fetch('/convert-png-to-jpg', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    const originalName = selectedFile.name.replace(/\.[^/.]+$/, "");
+                    a.download = `${originalName}.jpg`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    alert('Error converting image');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred');
+            } finally {
+                convertBtn.textContent = '🚀 Convert & Download';
+                convertBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
