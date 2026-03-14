@@ -20,6 +20,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/servicehub-suite
+            git fetch --all
+            git checkout main
             git pull origin main
             
             # Recreate venv if broken or missing to avoid path errors

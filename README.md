@@ -1,6 +1,8 @@
-# ServiceHub Studio 🚀
+# ThaiEdit Pro 🚀
 
-ServiceHub Studio is a modern, high-performance web-based multi-service portal designed for media processing and document management. It provides a suite of essential tools for image editing, PDF manipulation, and file conversion—all within a single, intuitive interface.
+ThaiEdit Pro is a modern, high-performance web-based multi-service portal designed for media processing and document management. It provides a suite of essential tools for image editing, PDF manipulation, and file conversion—all within a single, intuitive interface.
+
+**GitHub Repository:** [https://github.com/kcommerce/servicehub-suite](https://github.com/kcommerce/servicehub-suite)
 
 ## 🛠 Features
 
@@ -53,7 +55,7 @@ Once started, open your browser and navigate to:
 `http://localhost:8000`
 
 ## 🌍 Cross-Platform Compatibility
-ServiceHub Studio is built to be truly OS-independent. By bundling essential assets like the **Sarabun** font, the suite guarantees a consistent **WYSIWYG (What You See Is What You Get)** experience across Windows, macOS, Linux, and Mobile devices.
+ThaiEdit Pro is built to be truly OS-independent. By bundling essential assets like the **Sarabun** font, the suite guarantees a consistent **WYSIWYG (What You See Is What You Get)** experience across Windows, macOS, Linux, and Mobile devices.
 
 ## 🧰 Tech Stack
 *   **Backend:** FastAPI (Python)
