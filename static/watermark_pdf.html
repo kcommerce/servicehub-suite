@@ -183,6 +183,7 @@
         window.onmouseup = () => { isDragging = false; isRotating = false; };
 
         downloadBtn.onclick = async () => {
+            console.log("DEBUG: Download clicked. Preparing request...");
             loader.style.display = 'flex';
             const formData = new FormData();
             formData.append('file', pdfFile);
@@ -194,14 +195,26 @@
             formData.append('canvas_w', canvas.width); formData.append('canvas_h', canvas.height);
 
             try {
+                console.log("DEBUG: Sending request to /process-watermark-pdf...");
                 const res = await fetch('/process-watermark-pdf', { method: 'POST', body: formData });
+                console.log("DEBUG: Response status:", res.status);
+
                 if (res.ok) {
                     const blob = await res.blob();
+                    console.log("DEBUG: Blob received, size:", blob.size);
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a'); a.href = url; a.download = `watermarked_${pdfFile.name}`;
                     document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                    console.log("DEBUG: Download triggered successfully");
+                } else {
+                    const errText = await res.text();
+                    console.error("DEBUG: Server error:", errText);
+                    alert('Error from server: ' + errText);
                 }
-            } catch (err) { alert('Error'); } finally { loader.style.display = 'none'; }
+            } catch (err) { 
+                console.error("DEBUG: Connection error:", err);
+                alert('Connection error. Check console for details.'); 
+            } finally { loader.style.display = 'none'; }
         }
     </script>
 </body>

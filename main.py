@@ -55,17 +55,20 @@ async def process_watermark_pdf(
     y: float = Form(...),
     font_size: float = Form(...),
     color: str = Form(...),
-    rotation: float = Form(0.0), # New parameter
+    rotation: float = Form(0.0),
     canvas_w: float = Form(...),
     canvas_h: float = Form(...)
 ):
     import fitz
+    import traceback
     try:
+        print(f"DEBUG: Starting watermark for {file.filename}")
+        print(f"DEBUG: Params - text: {text}, x: {x}, y: {y}, size: {font_size}, rot: {rotation}")
+        
         contents = await file.read()
         doc = fitz.open(stream=contents, filetype="pdf")
         font_path = "static/thai_font.ttf"
         
-        # Color conversion
         hex_color = color.lstrip('#')
         rgb = tuple(int(hex_color[i:i+2], 16)/255 for i in (0, 2, 4))
 
@@ -80,7 +83,6 @@ async def process_watermark_pdf(
             text_x = x * scale_x
             text_y = y * scale_y
             
-            # Use insert_text with rotate parameter
             page.insert_text(
                 (text_x, text_y), 
                 text, 
@@ -88,25 +90,31 @@ async def process_watermark_pdf(
                 color=rgb,
                 fontname=f"wm_{i}", 
                 fontfile=font_path,
-                rotate=-rotation, # Negative because fitz rotates clockwise
+                rotate=-rotation,
                 overlay=True,
-                align=1 # Center
+                align=1
             )
-            
+        
         buf = io.BytesIO()
         doc.save(buf, garbage=3, deflate=True)
         doc.close()
         buf.seek(0)
         
+        print("DEBUG: Watermark processing complete, streaming response")
         from urllib.parse import quote
         safe_filename = quote(f"watermarked_{file.filename}")
         
         return StreamingResponse(
             buf, 
             media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename*=UTF-8''{safe_filename}"}
+            headers={
+                "Content-Disposition": f"attachment; filename*=UTF-8''{safe_filename}",
+                "Access-Control-Expose-Headers": "Content-Disposition"
+            }
         )
     except Exception as e:
+        print(f"DEBUG: Global error in watermark-pdf: {str(e)}")
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/process-merge-pdf")
