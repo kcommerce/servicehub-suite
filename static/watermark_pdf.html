@@ -128,16 +128,23 @@
 
         function draw() {
             if(!firstPageImg) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(firstPageImg, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            ctx.drawImage(firstPageImg, 0, 0);
             
             ctx.save();
             ctx.translate(textX, textY);
             ctx.rotate(textRotation * Math.PI / 180);
-            ctx.font = `${fontSizeInput.value}px Sarabun`; ctx.fillStyle = colorInput.value; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            
+            const fontSize = parseInt(fontSizeInput.value);
+            ctx.font = `${fontSize}px Sarabun`; 
+            ctx.fillStyle = colorInput.value; 
+            ctx.textAlign = 'center'; 
+            ctx.textBaseline = 'middle';
+            
             ctx.fillText(textInput.value, 0, 0);
             
             // Draw Rotation Handle (Green Dot above text)
-            const handleDist = parseInt(fontSizeInput.value) / 2 + 30;
+            const handleDist = fontSize / 2 + 30;
             ctx.beginPath(); ctx.arc(0, -handleDist, 10, 0, Math.PI*2);
             ctx.fillStyle = '#2ecc71'; ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
             ctx.restore();

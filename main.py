@@ -82,17 +82,29 @@ async def process_watermark_pdf(
             
             text_x = x * scale_x
             text_y = y * scale_y
+            f_size = font_size * scale_x
             
-            page.insert_text(
-                (text_x, text_y), 
+            # Create a box around the point to use insert_textbox (which has better alignment)
+            # A large enough box ensuring text fits
+            rect_width = p_width 
+            rect_height = f_size * 2
+            target_rect = fitz.Rect(
+                text_x - rect_width/2, 
+                text_y - rect_height/2, 
+                text_x + rect_width/2, 
+                text_y + rect_height/2
+            )
+            
+            page.insert_textbox(
+                target_rect, 
                 text, 
-                fontsize=font_size * scale_x,
+                fontsize=f_size,
                 color=rgb,
                 fontname=f"wm_{i}", 
                 fontfile=font_path,
-                rotate=-rotation,
-                overlay=True,
-                align=1
+                rotate=rotation, # insert_textbox uses degrees directly
+                align=1, # Center
+                overlay=True
             )
         
         buf = io.BytesIO()
