@@ -4,7 +4,7 @@
 sudo apt-get update
 sudo apt-get install -y nginx certbot python3-certbot-nginx
 
-# 2. Define Domain (Change this to your actual domain)
+# 2. Define Domain
 DOMAIN="thaiedit.com"
 
 # 3. Create Nginx Configuration
@@ -15,8 +15,28 @@ server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
 
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://\$host\$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name $DOMAIN www.$DOMAIN;
+
     # Increase upload size for PDFs and Images
     client_max_body_size 50M;
+
+    # MIME types
+    include /etc/nginx/mime.types;
+
+    # SSL Certificate Paths (Managed by Certbot)
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+
+    # Modern SSL Security Settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers HIGH:!aNULL:!MD5;
 
     location / {
         proxy_pass http://127.0.0.1:8000;
@@ -47,8 +67,8 @@ sudo nginx -t && sudo systemctl restart nginx
 sudo ufw allow 'Nginx Full'
 
 echo "--------------------------------------------------------"
-echo "✅ Nginx Reverse Proxy Setup Complete!"
+echo "✅ Nginx Reverse Proxy with HTTPS Redirect Setup Complete!"
 echo "--------------------------------------------------------"
-echo "STEP 6 (Manual): To activate SSL (HTTPS), run the following command:"
-echo "sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN"
+echo "NOTE: If you haven't run Certbot yet, the Nginx restart might fail."
+echo "Run: sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN"
 echo "--------------------------------------------------------"

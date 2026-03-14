@@ -6,6 +6,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, StreamingResponse
 from PIL import Image
 import uvicorn
+import mimetypes
+
+# Fix for Windows and some Linux systems missing CSS mime types
+mimetypes.add_type('text/css', '.css')
+mimetypes.add_type('application/javascript', '.js')
 
 app = FastAPI()
 
