@@ -559,39 +559,47 @@ async def compress_pdf(
     file: UploadFile = File(...),
     compression_level: str = Form("medium")
 ):
-    from pypdf import PdfWriter, PdfReader
+    import fitz
     try:
-        # Load PDF
+        # Load PDF using PyMuPDF (much more powerful for compression)
         contents = await file.read()
-        reader = PdfReader(io.BytesIO(contents))
-        writer = PdfWriter()
-
-        for page in reader.pages:
-            writer.add_page(page)
-
-        # 1. Compress content streams (text and instructions)
-        for page in writer.pages:
-            page.compress_content_streams() 
-
-        # 2. Remove metadata to save space
-        writer.add_metadata({})
-
-        # 3. Use lossy compression for images if level is high (simplified explanation)
-        # Note: pypdf has limited image re-compression, so we focus on structural reduction.
+        doc = fitz.open(stream=contents, filetype="pdf")
         
-        buf = io.BytesIO()
-        # writer.write() can take an optional 'compress' flag in some versions/forks
-        # but the standard way is content stream compression above.
-        writer.write(buf)
+        # Compression Strategy based on level
+        # garbage=4: removes unused objects, duplicate objects, and re-compresses everything
+        # deflate=True: compresses the streams
+        
+        if compression_level == "low":
+            # Just cleanup and standard compression
+            pdf_bytes = doc.tobytes(garbage=3, deflate=True, clean=True)
+        elif compression_level == "medium":
+            # Better cleanup
+            pdf_bytes = doc.tobytes(garbage=4, deflate=True, clean=True)
+        else: # high
+            # Most aggressive cleaning
+            # Note: For true high compression, we would need to iterate images and downsample,
+            # but garbage=4 already handles duplicate image removal which is great for size.
+            pdf_bytes = doc.tobytes(garbage=4, deflate=True, clean=True, pretty=False)
+
+        doc.close()
+        buf = io.BytesIO(pdf_bytes)
         buf.seek(0)
+        
+        from urllib.parse import quote
+        safe_filename = quote(f"compressed_{file.filename}")
         
         return StreamingResponse(
             buf, 
             media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename=compressed_{file.filename}"}
+            headers={
+                "Content-Disposition": f"attachment; filename*=UTF-8''{safe_filename}",
+                "Access-Control-Expose-Headers": "Content-Disposition"
+            }
         )
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/crop")
