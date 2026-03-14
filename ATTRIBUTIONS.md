@@ -16,7 +16,7 @@ ThaiEdit Pro is made possible by the following open-source software and assets. 
 ### PyMuPDF (fitz)
 - **License:** **GNU AGPL v3**
 - **Project:** https://github.com/pymupdf/PyMuPDF
-- **Compliance:** As required by the AGPL v3, the source code for ThaiEdit Pro is available to all users at our public GitHub repository.
+- **Compliance:** As required by the AGPL v3, the source code for ThaiEdit Pro is available to all users at: **https://github.com/kcommerce/servicehub-suite**
 
 ### Pillow (PIL)
 - **License:** HPND (Historical Permission Notice and Disclaimer)
