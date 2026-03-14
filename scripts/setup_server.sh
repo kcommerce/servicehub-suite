@@ -42,5 +42,11 @@ sudo systemctl daemon-reload
 sudo systemctl enable thaiedit
 sudo systemctl start thaiedit
 
+# 6. Fix Nginx Permissions (so it can read static files in /home/ubuntu)
+sudo usermod -a -G ubuntu www-data
+chmod g+x /home/ubuntu
+sudo chown -R ubuntu:www-data $PROJECT_DIR
+sudo chmod -R 755 $PROJECT_DIR
+
 echo "✅ Server Setup Complete! Service is running."
 sudo systemctl status thaiedit --no-pager
