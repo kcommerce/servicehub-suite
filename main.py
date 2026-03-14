@@ -279,6 +279,11 @@ async def legal_page():
     with open("static/legal.html", "r") as f:
         return f.read()
 
+@app.get("/ads.txt")
+async def ads_txt():
+    with open("static/ads.txt", "r") as f:
+        return f.read()
+
 @app.post("/process-composite")
 async def process_composite(
     file: UploadFile = File(...),
