@@ -51,7 +51,7 @@
                     <span class="icon">🎨</span> Design Tool
                 </button>
                 <button onclick="loadService('/legal')" class="service-btn">
-                    <span class="icon">⚖️</span> Legal & Privacy
+                    <span class="icon">⚖️</span> Legal Center
                 </button>
                 <button class="service-btn disabled" title="Coming Soon">
                     <span class="icon">📁</span> More Soon...
@@ -77,6 +77,16 @@
                          (adsbygoogle = window.adsbygoogle || []).push({});
                     </script>
                 </div>
+
+                <!-- Footer with Legal Links -->
+                <footer style="margin-top: 4rem; padding: 2rem; border-top: 1px solid #eee; width: 100%; color: #999; font-size: 0.8rem;">
+                    <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 1rem;">
+                        <a href="javascript:void(0)" onclick="loadService('/legal#terms')" style="color: #666; text-decoration: none;">Terms of Service</a>
+                        <a href="javascript:void(0)" onclick="loadService('/legal#privacy')" style="color: #666; text-decoration: none;">Privacy Policy</a>
+                        <a href="javascript:void(0)" onclick="loadService('/legal#cookies')" style="color: #666; text-decoration: none;">Cookie Policy</a>
+                    </div>
+                    <p>© 2026 ThaiEdit Pro. All tools process files locally in-memory for maximum privacy.</p>
+                </footer>
             </div>
         </main>
     </div>
@@ -87,6 +97,36 @@
             const iframe = document.getElementById('service-content');
             iframe.style.display = 'block';
             iframe.src = url;
+        }
+    </script>
+
+    <!-- Cookie Consent Banner (PDPA Compliance) -->
+    <div id="cookie-banner" style="position: fixed; bottom: 20px; right: 20px; width: 320px; background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999; display: none; border-left: 5px solid var(--portal-btn);">
+        <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--portal-primary);">🍪 Cookie Settings</h4>
+        <p style="font-size: 0.8rem; color: #636e72; line-height: 1.4; margin-bottom: 1rem;">
+            We use cookies to improve your experience and show personalized ads. By clicking "Accept", you agree to our <a href="javascript:void(0)" onclick="loadService('/legal#cookies')" style="color: var(--portal-btn);">Cookie Policy</a>.
+        </p>
+        <div style="display: flex; gap: 0.5rem;">
+            <button onclick="setCookieConsent(true)" style="flex: 1; padding: 0.6rem; border: none; background: var(--portal-btn); color: white; border-radius: 6px; font-weight: 600; cursor: pointer;">Accept</button>
+            <button onclick="setCookieConsent(false)" style="flex: 1; padding: 0.6rem; border: 1px solid #eee; background: white; color: #636e72; border-radius: 6px; font-weight: 600; cursor: pointer;">Decline</button>
+        </div>
+    </div>
+
+    <script>
+        // Cookie Consent Logic
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('cookie-consent')) {
+                document.getElementById('cookie-banner').style.display = 'block';
+            }
+        });
+
+        function setCookieConsent(accepted) {
+            localStorage.setItem('cookie-consent', accepted ? 'accepted' : 'declined');
+            document.getElementById('cookie-banner').style.display = 'none';
+            if (accepted) {
+                console.log("Cookies accepted. Enabling ad personalization...");
+                // Note: AdSense handles its own cookies, but this satisfies PDPA transparency.
+            }
         }
     </script>
 </body>

@@ -3,58 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legal & Privacy | ThaiEdit Pro</title>
+    <title>Legal Center | ThaiEdit Pro</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
-        .legal-container { max-width: 800px; margin: 3rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: var(--shadow); line-height: 1.6; }
-        h1 { color: var(--primary); margin-bottom: 1.5rem; }
-        h2 { font-size: 1.2rem; margin-top: 2rem; color: #2d3436; }
-        p, li { color: #636e72; font-size: 0.95rem; margin-bottom: 1rem; }
-        .license-box { background: #f8f9fa; padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.8rem; border: 1px solid #eee; overflow-x: auto; }
+        .legal-container { max-width: 900px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: var(--shadow); }
+        .legal-nav { display: flex; gap: 1rem; border-bottom: 2px solid #eee; margin-bottom: 2rem; padding-bottom: 1rem; position: sticky; top: 0; background: white; z-index: 10; }
+        .legal-nav a { text-decoration: none; color: #636e72; font-weight: 600; font-size: 0.9rem; }
+        .legal-nav a:hover { color: var(--primary); }
+        h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.4rem; margin-top: 3rem; color: #2d3436; border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.1rem; margin-top: 1.5rem; color: #2d3436; }
+        p, li { color: #636e72; font-size: 0.95rem; line-height: 1.7; margin-bottom: 1rem; }
+        .last-updated { font-size: 0.8rem; color: #b2bec3; margin-bottom: 2rem; }
     </style>
 </head>
 <body>
     <div class="legal-container">
-        <h1>Legal & Privacy Information</h1>
-        
-        <section>
-            <h2>Privacy Policy</h2>
-            <p>At ThaiEdit Pro, we value your privacy. Here is how we handle your data:</p>
+        <h1>Legal Center</h1>
+        <p class="last-updated">Last Updated: March 14, 2026</p>
+
+        <nav class="legal-nav">
+            <a href="#terms">Terms of Service</a>
+            <a href="#privacy">Privacy Policy</a>
+            <a href="#cookies">Cookie Policy</a>
+            <a href="#oss">Open Source</a>
+        </nav>
+
+        <section id="terms">
+            <h2>1. Terms of Service</h2>
+            <p>Welcome to ThaiEdit Pro. By accessing our website, you agree to be bound by these terms.</p>
+            <h3>Use License</h3>
+            <p>Permission is granted to temporarily use the tools provided on ThaiEdit Pro for personal or commercial transitory viewing and processing only.</p>
+            <h3>Disclaimer</h3>
+            <p>The materials on this website are provided on an 'as is' basis. ThaiEdit Pro makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
+            <h3>Limitations</h3>
+            <p>In no event shall ThaiEdit Pro or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on ThaiEdit Pro.</p>
+        </section>
+
+        <section id="privacy">
+            <h2>2. Privacy Policy</h2>
+            <p>Your privacy is critical to us. ThaiEdit Pro follows these core principles:</p>
             <ul>
-                <li><b>No Storage:</b> Uploaded files (Images, PDFs) are processed in-memory on our server. They are <b>never saved permanently</b> to our hard drives.</li>
-                <li><b>Temporary Processing:</b> Once you download your result or close the session, the data is wiped from our server's memory.</li>
-                <li><b>No Tracking:</b> We do not track your personal identity or sell your data to third parties.</li>
+                <li><b>In-Memory Processing:</b> We process your files in the server's volatile memory. We do not store your original or edited files on our permanent storage.</li>
+                <li><b>Automatic Deletion:</b> Once your download is complete or your connection is closed, all data related to your session is wiped.</li>
+                <li><b>Data Collection:</b> We do not require registration. We do not collect names, emails, or personal identification unless you voluntarily provide it for support.</li>
             </ul>
         </section>
 
-        <section>
-            <h2>Terms of Service</h2>
-            <p>By using this service, you agree to the following:</p>
+        <section id="cookies">
+            <h2>3. Cookie Policy</h2>
+            <p>ThaiEdit Pro uses cookies to improve your experience and support our business model.</p>
+            <h3>What are cookies?</h3>
+            <p>Cookies are small text files stored on your device by your browser.</p>
+            <h3>How we use them:</h3>
             <ul>
-                <li><b>"As Is" Basis:</b> ThaiEdit Pro is provided without warranty of any kind. We are not responsible for any data loss or errors in processed documents.</li>
-                <li><b>Legal Use:</b> You are responsible for ensuring you have the legal right to edit the documents you upload.</li>
-                <li><b>Liability:</b> In no event shall ThaiEdit Pro or its owners be liable for any damages arising from the use of this tool.</li>
+                <li><b>Essential Cookies:</b> Used to maintain your session and ensure the tools function correctly.</li>
+                <li><b>Advertising Cookies:</b> We use Google AdSense to show ads. Google may use cookies to serve ads based on your prior visits to this or other websites.</li>
+                <li><b>Analytics:</b> We may use basic analytics to understand how many people use our tools.</li>
             </ul>
+            <p>You can choose to disable cookies in your browser settings, though some features of the site may not function perfectly.</p>
         </section>
 
-        <section>
-            <h2>Open Source & Credits</h2>
-            <p>ThaiEdit Pro is proud to be open-source. Our code is available for review and contribution on GitHub:</p>
-            <p><a href="https://github.com/kcommerce/servicehub-suite" target="_blank" style="color: var(--primary); font-weight: bold;">github.com/kcommerce/servicehub-suite</a></p>
-            
-            <p>This project is made possible by these amazing libraries:</p>
+        <section id="oss">
+            <h2>4. Open Source Credits</h2>
+            <p>Our code is transparent and available on GitHub: <a href="https://github.com/kcommerce/servicehub-suite" target="_blank">github.com/kcommerce/servicehub-suite</a></p>
             <ul>
-                <li><b>FastAPI:</b> MIT License</li>
-                <li><b>Pillow (PIL):</b> HPND License</li>
                 <li><b>PyMuPDF (fitz):</b> GNU AGPL v3</li>
-                <li><b>Cropper.js:</b> MIT License</li>
+                <li><b>FastAPI:</b> MIT License</li>
+                <li><b>Pillow:</b> HPND License</li>
                 <li><b>Sarabun Font:</b> SIL Open Font License</li>
             </ul>
         </section>
 
-        <section style="margin-top: 3rem; text-align: center;">
-            <p>© 2026 ThaiEdit Pro. All rights reserved.</p>
-        </section>
+        <footer style="margin-top: 5rem; text-align: center; border-top: 1px solid #eee; padding-top: 2rem;">
+            <p>© 2026 ThaiEdit Pro. Professional Utility Suite.</p>
+        </footer>
     </div>
 </body>
 </html>

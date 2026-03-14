@@ -55,7 +55,6 @@ async def process_watermark_pdf(
     y: float = Form(...),
     font_size: float = Form(...),
     color: str = Form(...),
-    rotation: float = Form(0.0),
     canvas_w: float = Form(...),
     canvas_h: float = Form(...)
 ):
@@ -63,7 +62,7 @@ async def process_watermark_pdf(
     import traceback
     try:
         print(f"DEBUG: Starting watermark for {file.filename}")
-        print(f"DEBUG: Params - text: {text}, x: {x}, y: {y}, size: {font_size}, rot: {rotation}")
+        print(f"DEBUG: Params - text: {text}, x: {x}, y: {y}, size: {font_size}")
         
         contents = await file.read()
         doc = fitz.open(stream=contents, filetype="pdf")
@@ -102,7 +101,7 @@ async def process_watermark_pdf(
                 color=rgb,
                 fontname=f"wm_{i}", 
                 fontfile=font_path,
-                rotate=rotation, # insert_textbox uses degrees directly
+                rotate=0, # Fixed to horizontal
                 align=1, # Center
                 overlay=True
             )
