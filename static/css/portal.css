@@ -26,39 +26,63 @@ body, html {
 }
 
 .top-frame {
-    height: 70px;
+    min-height: 70px;
+    height: auto; /* Allow growth if menus wrap */
     background: var(--portal-nav);
     display: flex;
+    flex-wrap: wrap; /* CRITICAL: Allow wrapping */
     align-items: center;
     justify-content: space-between;
-    padding: 0 2rem;
+    padding: 0.5rem 2rem;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     z-index: 1000;
+    gap: 1rem;
 }
 
 .portal-logo {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 800;
     color: var(--portal-primary);
+    white-space: nowrap;
+}
+
+.header-ad {
+    order: 2;
 }
 
 .service-nav {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap; /* Allow buttons to wrap */
+    gap: 0.5rem;
+    order: 3;
 }
 
 .service-btn {
-    padding: 0.6rem 1.2rem;
+    padding: 0.4rem 0.8rem; /* More compact */
     border: 2px solid var(--portal-btn);
     background: transparent;
     color: var(--portal-btn);
     border-radius: 8px;
     font-weight: 600;
+    font-size: 0.85rem; /* Smaller font */
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     transition: all 0.2s;
+    white-space: nowrap;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 1200px) {
+    .top-frame {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .header-ad {
+        margin: 1rem 0 !important;
+    }
 }
 
 .service-btn:hover:not(.disabled) {
