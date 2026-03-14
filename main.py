@@ -42,6 +42,71 @@ async def merge_pdf_page():
     with open("static/merge_pdf.html", "r") as f:
         return f.read()
 
+@app.get("/watermark-pdf", response_class=HTMLResponse)
+async def watermark_pdf_page():
+    with open("static/watermark_pdf.html", "r") as f:
+        return f.read()
+
+@app.post("/process-watermark-pdf")
+async def process_watermark_pdf(
+    file: UploadFile = File(...),
+    text: str = Form(...),
+    x: float = Form(...),
+    y: float = Form(...),
+    font_size: float = Form(...),
+    color: str = Form(...),
+    canvas_w: float = Form(...),
+    canvas_h: float = Form(...)
+):
+    import fitz
+    try:
+        contents = await file.read()
+        doc = fitz.open(stream=contents, filetype="pdf")
+        font_path = "static/thai_font.ttf"
+        
+        # Color conversion
+        hex_color = color.lstrip('#')
+        rgb = tuple(int(hex_color[i:i+2], 16)/255 for i in (0, 2, 4))
+
+        for i in range(len(doc)):
+            page = doc[i]
+            p_width = page.rect.width
+            p_height = page.rect.height
+            
+            # Map coordinates based on the canvas dimensions from page 1
+            scale_x = p_width / canvas_w
+            scale_y = p_height / canvas_h
+            
+            text_x = x * scale_x
+            text_y = y * scale_y
+            
+            page.insert_text(
+                (text_x, text_y), 
+                text, 
+                fontsize=font_size * scale_x,
+                color=rgb,
+                fontname=f"wm_{i}", 
+                fontfile=font_path,
+                overlay=True,
+                align=1 # Center
+            )
+            
+        buf = io.BytesIO()
+        doc.save(buf, garbage=3, deflate=True)
+        doc.close()
+        buf.seek(0)
+        
+        from urllib.parse import quote
+        safe_filename = quote(f"watermarked_{file.filename}")
+        
+        return StreamingResponse(
+            buf, 
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename*=UTF-8''{safe_filename}"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/process-merge-pdf")
 async def process_merge_pdf(
     files: list[UploadFile] = File(...)

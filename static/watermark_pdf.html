@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watermark PDF | ThaiEdit Pro</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        main { flex: 1; display: flex; overflow: hidden; }
+        .sidebar { width: 350px; background: #fff; border-right: 1px solid #eee; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; overflow-y: auto; }
+        .canvas-container { flex: 1; background: #e9ecef; padding: 2rem; overflow-y: auto; position: relative; display: block; }
+        .page-wrapper { position: relative; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin: 0 auto; display: block; }
+        canvas { display: block; cursor: crosshair; }
+        .control-item { display: flex; flex-direction: column; gap: 0.4rem; text-align: left; }
+        .control-item label { font-weight: 600; font-size: 0.85rem; color: #2d3436; }
+        input, select { padding: 0.6rem; border: 1px solid #dfe6e9; border-radius: 8px; width: 100%; }
+        .color-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+        .color-box { flex: 1; height: 40px; border-radius: 4px; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; }
+        .color-presets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+        .swatch { height: 25px; border-radius: 4px; border: 1px solid #eee; cursor: pointer; }
+        .hint { font-size: 0.8rem; color: #636e72; background: #fff9db; padding: 0.8rem; border-radius: 8px; border-left: 4px solid #fcc419; }
+        .loader-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    </style>
+</head>
+<body>
+    <div id="loader" class="loader-overlay"><div style="text-align:center;"><div class="spinner" style="margin:auto;"></div><p id="loader-text" style="margin-top:1rem; font-weight:600;">Processing...</p></div></div>
+    <main>
+        <div class="sidebar">
+            <section class="upload-section">
+                <label for="pdfUpload" class="upload-btn"><span>📁 Upload PDF File</span><input type="file" id="pdfUpload" accept=".pdf" hidden></label>
+            </section>
+            <div class="control-item">
+                <label>Watermark Text</label>
+                <input type="text" id="textContent" value="CONFIDENTIAL">
+            </div>
+            <div class="control-item">
+                <label>Font Size: <span id="sizeVal">60</span>px</label>
+                <input type="range" id="fontSize" min="10" max="200" value="60">
+            </div>
+            <div class="control-item">
+                <label>Color</label>
+                <div class="color-row">
+                    <input type="color" id="textColor" value="#e74c3c" style="width:50px; height:40px; cursor:pointer;">
+                    <div id="colorPreview" class="color-box" style="background:#e74c3c; color:white;">rgb(231, 76, 60)</div>
+                </div>
+                <div id="colorPresets" class="color-presets"></div>
+            </div>
+            <div class="hint">💡 <b>How to:</b><br>1. Drag the text to position it on the first page.<br>2. Click download to apply to ALL pages.</div>
+            <section class="actions">
+                <button id="downloadBtn" class="download-btn" disabled>🚀 Apply to All Pages</button>
+            </section>
+            <!-- Ad Container -->
+            <div style="margin-top: auto; padding-top: 1rem; text-align: center;">
+                <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-3619728042544494" data-ad-slot="1223926916"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+        </div>
+        <div class="canvas-container" id="pages-container">
+            <div id="no-pdf-msg" style="color: #adb5bd; text-align: center; margin-top: 10rem;"><h2>Watermark Tool</h2><p>Upload a PDF to design your watermark</p></div>
+        </div>
+    </main>
+    <script>
+        const pdfUpload = document.getElementById('pdfUpload');
+        const pagesContainer = document.getElementById('pages-container');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loader = document.getElementById('loader');
+        const textInput = document.getElementById('textContent');
+        const fontSizeInput = document.getElementById('fontSize');
+        const colorInput = document.getElementById('textColor');
+        const colorPreview = document.getElementById('colorPreview');
+        const colorPresetsGrid = document.getElementById('colorPresets');
+
+        let pdfFile = null, firstPageImg = null, canvas = null, ctx = null;
+        let textX = 100, textY = 100, isDragging = false, dragOffsetX = 0, dragOffsetY = 0;
+
+        const presets = ['#000000', '#555555', '#ffffff', '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#1abc9c', '#3498db', '#9b59b6'];
+        presets.forEach(c => {
+            const s = document.createElement('div'); s.className = 'swatch'; s.style.background = c;
+            s.onclick = () => { colorInput.value = c; updateColorUI(c); draw(); };
+            colorPresetsGrid.appendChild(s);
+        });
+
+        function updateColorUI(hex) {
+            colorPreview.style.background = hex;
+            const r = parseInt(hex.substring(1, 3), 16), g = parseInt(hex.substring(3, 5), 16), b = parseInt(hex.substring(5, 7), 16);
+            colorPreview.textContent = `rgb(${r}, ${g}, ${b})`;
+            colorPreview.style.color = (r*0.299 + g*0.587 + b*0.114) > 186 ? 'black' : 'white';
+        }
+
+        colorInput.oninput = (e) => { updateColorUI(e.target.value); draw(); };
+        textInput.oninput = draw;
+        fontSizeInput.oninput = (e) => { document.getElementById('sizeVal').textContent = e.target.value; draw(); };
+
+        pdfUpload.addEventListener('change', async (e) => {
+            if (e.target.files.length > 0) {
+                pdfFile = e.target.files[0];
+                renderFirstPage();
+            }
+        });
+
+        async function renderFirstPage() {
+            loader.style.display = 'flex';
+            const formData = new FormData(); formData.append('file', pdfFile);
+            try {
+                const res = await fetch('/render-pdf', { method: 'POST', body: formData });
+                const data = await res.json();
+                const p = data.pages[0]; // ONLY PAGE 1
+                pagesContainer.innerHTML = '';
+                const wrapper = document.createElement('div'); wrapper.className = 'page-wrapper';
+                canvas = document.createElement('canvas'); canvas.width = p.width; canvas.height = p.height;
+                canvas.style.width = (p.width / 2) + 'px'; canvas.style.height = (p.height / 2) + 'px';
+                ctx = canvas.getContext('2d');
+                firstPageImg = new Image(); firstPageImg.onload = () => { draw(); }; firstPageImg.src = p.image;
+                canvas.onmousedown = handleMouseDown;
+                wrapper.appendChild(canvas); pagesContainer.appendChild(wrapper);
+                downloadBtn.disabled = false;
+            } catch (err) { alert('Error rendering PDF'); } finally { loader.style.display = 'none'; }
+        }
+
+        function draw() {
+            if(!firstPageImg) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(firstPageImg, 0, 0);
+            ctx.font = `${fontSizeInput.value}px Sarabun`; ctx.fillStyle = colorInput.value; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(textInput.value, textX, textY);
+        }
+
+        function handleMouseDown(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+            isDragging = true; dragOffsetX = mx - textX; dragOffsetY = my - textY;
+        }
+
+        window.onmousemove = (e) => {
+            if(!isDragging) return;
+            const rect = canvas.getBoundingClientRect();
+            textX = (e.clientX - rect.left) * (canvas.width / rect.width) - dragOffsetX;
+            textY = (e.clientY - rect.top) * (canvas.height / rect.height) - dragOffsetY;
+            draw();
+        };
+        window.onmouseup = () => isDragging = false;
+
+        downloadBtn.onclick = async () => {
+            loader.style.display = 'flex';
+            const formData = new FormData();
+            formData.append('file', pdfFile);
+            formData.append('text', textInput.value);
+            formData.append('x', textX); formData.append('y', textY);
+            formData.append('font_size', fontSizeInput.value);
+            formData.append('color', colorInput.value);
+            formData.append('canvas_w', canvas.width); formData.append('canvas_h', canvas.height);
+
+            try {
+                const res = await fetch('/process-watermark-pdf', { method: 'POST', body: formData });
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a'); a.href = url; a.download = `watermarked_${pdfFile.name}`;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                }
+            } catch (err) { alert('Error'); } finally { loader.style.display = 'none'; }
+        }
+    </script>
+</body>
+</html>
