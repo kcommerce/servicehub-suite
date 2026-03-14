@@ -9,7 +9,7 @@
         body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         main { flex: 1; display: flex; overflow: hidden; }
         .sidebar { width: 350px; background: #fff; border-right: 1px solid #eee; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; overflow-y: auto; }
-        .canvas-container { flex: 1; background: #e9ecef; padding: 2rem; overflow-y: auto; position: relative; display: block; }
+        .canvas-container { flex: 1; background: #e9ecef; padding: 2rem; overflow: auto; position: relative; display: block; }
         .page-wrapper { position: relative; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin: 0 auto; display: block; }
         canvas { display: block; cursor: crosshair; }
         .control-item { display: flex; flex-direction: column; gap: 0.4rem; text-align: left; }
@@ -39,6 +39,10 @@
                 <input type="range" id="fontSize" min="10" max="200" value="60">
             </div>
             <div class="control-item">
+                <label>Rotation: <span id="rotVal">0</span>°</label>
+                <input type="range" id="rotRange" min="-180" max="180" value="0">
+            </div>
+            <div class="control-item">
                 <label>Color</label>
                 <div class="color-row">
                     <input type="color" id="textColor" value="#e74c3c" style="width:50px; height:40px; cursor:pointer;">
@@ -46,9 +50,9 @@
                 </div>
                 <div id="colorPresets" class="color-presets"></div>
             </div>
-            <div class="hint">💡 <b>How to:</b><br>1. Drag the text to position it on the first page.<br>2. Click download to apply to ALL pages.</div>
+            <div class="hint">💡 <b>Tips:</b><br>• Drag text to <b>move</b><br>• Drag <b style="color:#2ecc71">green dot</b> to <b>rotate</b></div>
             <section class="actions">
-                <button id="downloadBtn" class="download-btn" disabled>🚀 Apply to All Pages</button>
+                <button id="downloadBtn" class="download-btn" disabled>🚀 Process & Download PDF</button>
             </section>
             <!-- Ad Container -->
             <div style="margin-top: auto; padding-top: 1rem; text-align: center;">
@@ -67,12 +71,15 @@
         const loader = document.getElementById('loader');
         const textInput = document.getElementById('textContent');
         const fontSizeInput = document.getElementById('fontSize');
+        const rotRange = document.getElementById('rotRange');
         const colorInput = document.getElementById('textColor');
         const colorPreview = document.getElementById('colorPreview');
         const colorPresetsGrid = document.getElementById('colorPresets');
 
         let pdfFile = null, firstPageImg = null, canvas = null, ctx = null;
-        let textX = 100, textY = 100, isDragging = false, dragOffsetX = 0, dragOffsetY = 0;
+        let textX = 200, textY = 200, textRotation = 0;
+        let isDragging = false, isRotating = false;
+        let dragOffsetX = 0, dragOffsetY = 0;
 
         const presets = ['#000000', '#555555', '#ffffff', '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#1abc9c', '#3498db', '#9b59b6'];
         presets.forEach(c => {
@@ -91,6 +98,7 @@
         colorInput.oninput = (e) => { updateColorUI(e.target.value); draw(); };
         textInput.oninput = draw;
         fontSizeInput.oninput = (e) => { document.getElementById('sizeVal').textContent = e.target.value; draw(); };
+        rotRange.oninput = (e) => { document.getElementById('rotVal').textContent = e.target.value; textRotation = parseInt(e.target.value); draw(); };
 
         pdfUpload.addEventListener('change', async (e) => {
             if (e.target.files.length > 0) {
@@ -105,7 +113,7 @@
             try {
                 const res = await fetch('/render-pdf', { method: 'POST', body: formData });
                 const data = await res.json();
-                const p = data.pages[0]; // ONLY PAGE 1
+                const p = data.pages[0];
                 pagesContainer.innerHTML = '';
                 const wrapper = document.createElement('div'); wrapper.className = 'page-wrapper';
                 canvas = document.createElement('canvas'); canvas.width = p.width; canvas.height = p.height;
@@ -121,25 +129,58 @@
         function draw() {
             if(!firstPageImg) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(firstPageImg, 0, 0);
+            
+            ctx.save();
+            ctx.translate(textX, textY);
+            ctx.rotate(textRotation * Math.PI / 180);
             ctx.font = `${fontSizeInput.value}px Sarabun`; ctx.fillStyle = colorInput.value; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(textInput.value, textX, textY);
+            ctx.fillText(textInput.value, 0, 0);
+            
+            // Draw Rotation Handle (Green Dot above text)
+            const handleDist = parseInt(fontSizeInput.value) / 2 + 30;
+            ctx.beginPath(); ctx.arc(0, -handleDist, 10, 0, Math.PI*2);
+            ctx.fillStyle = '#2ecc71'; ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.restore();
         }
 
         function handleMouseDown(e) {
             const rect = canvas.getBoundingClientRect();
             const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
             const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+            // Check Rotation Handle (Green Dot)
+            const angle = textRotation * Math.PI / 180;
+            const handleDist = parseInt(fontSizeInput.value) / 2 + 30;
+            const hx = textX + Math.sin(angle) * handleDist;
+            const hy = textY - Math.cos(angle) * handleDist;
+            
+            if (Math.sqrt((mx - hx)**2 + (my - hy)**2) < 20) {
+                isRotating = true; return;
+            }
+
+            // Check Move
             isDragging = true; dragOffsetX = mx - textX; dragOffsetY = my - textY;
         }
 
         window.onmousemove = (e) => {
-            if(!isDragging) return;
+            if (!canvas) return;
             const rect = canvas.getBoundingClientRect();
-            textX = (e.clientX - rect.left) * (canvas.width / rect.width) - dragOffsetX;
-            textY = (e.clientY - rect.top) * (canvas.height / rect.height) - dragOffsetY;
-            draw();
+            const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+            if (isRotating) {
+                const angle = Math.atan2(mx - textX, textY - my);
+                textRotation = Math.round(angle * (180 / Math.PI));
+                rotRange.value = textRotation;
+                document.getElementById('rotVal').textContent = textRotation;
+                draw();
+            } else if (isDragging) {
+                textX = mx - dragOffsetX;
+                textY = my - dragOffsetY;
+                draw();
+            }
         };
-        window.onmouseup = () => isDragging = false;
+        window.onmouseup = () => { isDragging = false; isRotating = false; };
 
         downloadBtn.onclick = async () => {
             loader.style.display = 'flex';
@@ -149,6 +190,7 @@
             formData.append('x', textX); formData.append('y', textY);
             formData.append('font_size', fontSizeInput.value);
             formData.append('color', colorInput.value);
+            formData.append('rotation', textRotation);
             formData.append('canvas_w', canvas.width); formData.append('canvas_h', canvas.height);
 
             try {

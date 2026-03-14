@@ -55,6 +55,7 @@ async def process_watermark_pdf(
     y: float = Form(...),
     font_size: float = Form(...),
     color: str = Form(...),
+    rotation: float = Form(0.0), # New parameter
     canvas_w: float = Form(...),
     canvas_h: float = Form(...)
 ):
@@ -73,13 +74,13 @@ async def process_watermark_pdf(
             p_width = page.rect.width
             p_height = page.rect.height
             
-            # Map coordinates based on the canvas dimensions from page 1
             scale_x = p_width / canvas_w
             scale_y = p_height / canvas_h
             
             text_x = x * scale_x
             text_y = y * scale_y
             
+            # Use insert_text with rotate parameter
             page.insert_text(
                 (text_x, text_y), 
                 text, 
@@ -87,6 +88,7 @@ async def process_watermark_pdf(
                 color=rgb,
                 fontname=f"wm_{i}", 
                 fontfile=font_path,
+                rotate=-rotation, # Negative because fitz rotates clockwise
                 overlay=True,
                 align=1 # Center
             )
