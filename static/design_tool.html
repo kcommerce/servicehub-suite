@@ -455,19 +455,32 @@
             document.getElementById('zoomPercent').textContent = Math.round(currentZoom * 100);
         }
 
-        downloadBtn.onclick = async () => {
-            downloadBtn.textContent = '⏳ Processing...';
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-            formData.append('layers_json', JSON.stringify(activeLayers.map(l => ({...l, img: undefined}))));
-            try {
-                const res = await fetch('/process-composite', { method: 'POST', body: formData });
-                if(res.ok) {
-                    const blob = await res.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a'); a.href = url; a.download = 'design.png'; a.click();
-                }
-            } catch(e) { alert('Error'); } finally { downloadBtn.textContent = '🚀 Download Result'; }
+        // 100% CLIENT-SIDE DOWNLOAD (No server processing needed!)
+        downloadBtn.onclick = () => {
+            if(!originalImage) return;
+            
+            // 1. Reset zoom to 100% for high-quality export
+            const oldZoom = currentZoom;
+            currentZoom = 1.0;
+            updateZoom();
+            draw();
+
+            // 2. Export canvas to high-quality PNG
+            canvas.toBlob((blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'thaiedit_design.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                // 3. Restore user's previous zoom
+                currentZoom = oldZoom;
+                updateZoom();
+                draw();
+            }, 'image/png', 1.0);
         }
     </script>
 </body>

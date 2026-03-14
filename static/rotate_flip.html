@@ -146,44 +146,45 @@
             previewImg.style.transform = `rotate(${currentRotation}deg) scale(${scaleX}, ${scaleY})`;
         }
 
-        downloadBtn.addEventListener('click', async () => {
-            if (!selectedFile) return;
-            
-            downloadBtn.textContent = '⏳ Processing...';
-            downloadBtn.disabled = true;
+        // 100% CLIENT-SIDE PROCESSING
+        downloadBtn.addEventListener('click', () => {
+            if (!selectedFile || !previewImg.src) return;
 
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-            formData.append('rotation', currentRotation);
-            formData.append('flip_h', isFlipH);
-            formData.append('flip_v', isFlipV);
+            // Create a temporary canvas for the high-res result
+            const exportCanvas = document.createElement('canvas');
+            const eCtx = exportCanvas.getContext('2d');
 
-            try {
-                const response = await fetch('/process-rotate-flip', {
-                    method: 'POST',
-                    body: formData
-                });
+            const img = new Image();
+            img.onload = () => {
+                // Calculate dimensions for rotation
+                const isVertical = (currentRotation / 90) % 2 !== 0;
+                exportCanvas.width = isVertical ? img.height : img.width;
+                exportCanvas.height = isVertical ? img.width : img.height;
 
-                if (response.ok) {
-                    const blob = await response.blob();
+                eCtx.save();
+                // Move to center
+                eCtx.translate(exportCanvas.width / 2, exportCanvas.height / 2);
+                // Apply rotation
+                eCtx.rotate(currentRotation * Math.PI / 180);
+                // Apply flips
+                eCtx.scale(isFlipH ? -1 : 1, isFlipV ? -1 : 1);
+                // Draw back from center
+                eCtx.drawImage(img, -img.width / 2, -img.height / 2);
+                eCtx.restore();
+
+                // Download result
+                exportCanvas.toBlob((blob) => {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `processed_${selectedFile.name}`;
+                    a.download = `rotated_${selectedFile.name}`;
                     document.body.appendChild(a);
                     a.click();
-                    window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
-                } else {
-                    alert('Error processing image');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('An error occurred');
-            } finally {
-                downloadBtn.textContent = '🚀 Process & Download';
-                downloadBtn.disabled = false;
-            }
+                    window.URL.revokeObjectURL(url);
+                }, 'image/png');
+            };
+            img.src = previewImg.src;
         });
     </script>
 </body>
