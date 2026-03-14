@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge PDF Service | ThaiEdit Pro</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .container { padding: 3rem; max-width: 600px; margin: auto; text-align: center; }
+        .file-list { margin-top: 2rem; text-align: left; background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .file-item { display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid #eee; font-size: 0.9rem; color: #2d3436; }
+        .file-item:last-child { border-bottom: none; }
+        .remove-btn { color: #e74c3c; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <h1>📑 Merge PDF</h1>
+            <p>Combine multiple PDF files into a single document instantly.</p>
+            
+            <section class="upload-section" style="margin-top: 2rem;">
+                <label for="pdfUpload" class="upload-btn">
+                    <span>📁 Select PDF Files</span>
+                    <input type="file" id="pdfUpload" accept=".pdf" multiple hidden>
+                </label>
+            </section>
+
+            <div id="fileListContainer" class="file-list" style="display: none;">
+                <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary);">Files to Merge:</h3>
+                <div id="fileList"></div>
+            </div>
+
+            <section class="actions" style="margin-top: 2rem;">
+                <button id="mergeBtn" class="download-btn" disabled>⚡ Merge & Download</button>
+            </section>
+
+            <!-- Ad Container -->
+            <div style="margin-top: 3rem; text-align: center;">
+                <div style="display: inline-block; width: 336px; height: 280px; background: #f8f9fa; border: 1px dashed #ccc; font-size: 0.7rem; color: #999; line-height: 280px;">
+                    ADVERTISING (Rectangle 336x280)
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const pdfUpload = document.getElementById('pdfUpload');
+        const fileList = document.getElementById('fileList');
+        const container = document.getElementById('fileListContainer');
+        const mergeBtn = document.getElementById('mergeBtn');
+        
+        let selectedFiles = [];
+
+        pdfUpload.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            selectedFiles = [...selectedFiles, ...files];
+            renderFileList();
+        });
+
+        function renderFileList() {
+            fileList.innerHTML = '';
+            if (selectedFiles.length > 0) {
+                container.style.display = 'block';
+                mergeBtn.disabled = selectedFiles.length < 2;
+                
+                selectedFiles.forEach((file, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'file-item';
+                    div.innerHTML = `
+                        <span>${index + 1}. ${file.name}</span>
+                        <span class="remove-btn" onclick="removeFile(${index})">Remove</span>
+                    `;
+                    fileList.appendChild(div);
+                });
+            } else {
+                container.style.display = 'none';
+                mergeBtn.disabled = true;
+            }
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderFileList();
+        }
+
+        mergeBtn.addEventListener('click', async () => {
+            mergeBtn.textContent = '⏳ Merging...';
+            mergeBtn.disabled = true;
+
+            const formData = new FormData();
+            selectedFiles.forEach(file => {
+                formData.append('files', file);
+            });
+
+            try {
+                const response = await fetch('/process-merge-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'merged_document.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    alert('Error merging PDFs');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred');
+            } finally {
+                mergeBtn.textContent = '⚡ Merge & Download';
+                mergeBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

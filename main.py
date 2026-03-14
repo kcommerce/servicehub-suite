@@ -37,6 +37,34 @@ async def edit_pdf_page():
     with open("static/edit_pdf.html", "r") as f:
         return f.read()
 
+@app.get("/merge-pdf", response_class=HTMLResponse)
+async def merge_pdf_page():
+    with open("static/merge_pdf.html", "r") as f:
+        return f.read()
+
+@app.post("/process-merge-pdf")
+async def process_merge_pdf(
+    files: list[UploadFile] = File(...)
+):
+    from pypdf import PdfWriter
+    try:
+        merger = PdfWriter()
+        for file in files:
+            contents = await file.read()
+            merger.append(io.BytesIO(contents))
+        
+        buf = io.BytesIO()
+        merger.write(buf)
+        buf.seek(0)
+        
+        return StreamingResponse(
+            buf, 
+            media_type="application/pdf",
+            headers={"Content-Disposition": "attachment; filename=merged_document.pdf"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/make-mp4", response_class=HTMLResponse)
 async def make_mp4_page():
     with open("static/make_mp4.html", "r") as f:
