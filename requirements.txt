@@ -4,3 +4,6 @@ python-multipart
 Pillow
 jinja2
 pypdf
+pymupdf
+moviepy
+rembg

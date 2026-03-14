@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make MP4 - ServiceHub Studio</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .container { padding: 2rem; max-width: 700px; margin: auto; text-align: center; }
+        .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+        .upload-box { padding: 1.5rem; border: 2px dashed #dfe6e9; border-radius: 12px; background: white; transition: all 0.2s; }
+        .upload-box:hover { border-color: var(--primary); background: rgba(108, 92, 231, 0.05); }
+        .file-list { margin-top: 1rem; font-size: 0.8rem; color: #636e72; text-align: left; max-height: 100px; overflow-y: auto; }
+        .control-panel { margin-top: 2rem; padding: 1.5rem; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; }
+        .loader-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; flex-direction: column; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div id="loader" class="loader-overlay">
+        <div class="spinner"></div>
+        <h2 style="margin-top: 1.5rem; color: var(--primary);">🎬 Rendering Video...</h2>
+        <p style="color: #636e72; margin-top: 0.5rem;">This may take a minute depending on the number of images.</p>
+    </div>
+
+    <main>
+        <div class="container">
+            <h1>🎬 Make MP4 Slideshow</h1>
+            <p>Combine multiple pictures and an MP3 into a professional video.</p>
+
+            <div class="upload-grid">
+                <div class="upload-box">
+                    <label for="imageUpload" style="cursor: pointer;">
+                        <span style="font-size: 2rem;">🖼️</span><br>
+                        <b>Select Pictures</b>
+                        <input type="file" id="imageUpload" accept="image/*" multiple hidden>
+                    </label>
+                    <div id="imageList" class="file-list">No images selected</div>
+                </div>
+                <div class="upload-box">
+                    <label for="audioUpload" style="cursor: pointer;">
+                        <span style="font-size: 2rem;">🎵</span><br>
+                        <b>Select MP3</b>
+                        <input type="file" id="audioUpload" accept="audio/mpeg" hidden>
+                    </label>
+                    <div id="audioFile" class="file-list">No audio selected</div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-weight: 600;">Show each image for: <span id="durVal">3</span> sec</label>
+                    <input type="range" id="duration" min="1" max="10" value="3" style="width: 200px;">
+                </div>
+                <p style="font-size: 0.75rem; color: #999; margin-top: 0.5rem;">The video will be as long as the images sequence or the audio, whichever is shorter.</p>
+            </div>
+
+            <section class="actions" style="margin-top: 2rem;">
+                <button id="generateBtn" class="download-btn" style="background: var(--gradient);" disabled>✨ Generate & Download MP4</button>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const imageUpload = document.getElementById('imageUpload');
+        const audioUpload = document.getElementById('audioUpload');
+        const imageList = document.getElementById('imageList');
+        const audioFile = document.getElementById('audioFile');
+        const generateBtn = document.getElementById('generateBtn');
+        const durVal = document.getElementById('durVal');
+        const duration = document.getElementById('duration');
+        const loader = document.getElementById('loader');
+
+        let selectedImages = [];
+        let selectedAudio = null;
+
+        duration.oninput = (e) => { durVal.textContent = e.target.value; };
+
+        imageUpload.onchange = (e) => {
+            selectedImages = Array.from(e.target.files);
+            imageList.innerHTML = selectedImages.map(f => `• ${f.name}`).join('<br>');
+            checkReady();
+        };
+
+        audioUpload.onchange = (e) => {
+            selectedAudio = e.target.files[0];
+            audioFile.textContent = `• ${selectedAudio.name}`;
+            checkReady();
+        };
+
+        function checkReady() {
+            generateBtn.disabled = !(selectedImages.length > 0 && selectedAudio);
+        }
+
+        generateBtn.onclick = async () => {
+            loader.style.display = 'flex';
+            const formData = new FormData();
+            selectedImages.forEach(img => formData.append('images', img));
+            formData.append('audio', selectedAudio);
+            // FPS = 1 / duration per image
+            formData.append('fps', (1 / duration.value).toFixed(2));
+
+            try {
+                const response = await fetch('/process-make-mp4', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `slideshow_${Date.now()}.mp4`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } else {
+                    const err = await response.text();
+                    alert('Error generating video: ' + err);
+                }
+            } catch (err) {
+                alert('Connection error');
+            } finally {
+                loader.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>

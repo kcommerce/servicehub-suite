@@ -32,6 +32,71 @@ async def edit_pdf_page():
     with open("static/edit_pdf.html", "r") as f:
         return f.read()
 
+@app.get("/make-mp4", response_class=HTMLResponse)
+async def make_mp4_page():
+    with open("static/make_mp4.html", "r") as f:
+        return f.read()
+
+@app.post("/process-make-mp4")
+async def process_make_mp4(
+    images: list[UploadFile] = File(...),
+    audio: UploadFile = File(...),
+    fps: float = Form(1.0) # Seconds per image by default if we treat it as a sequence
+):
+    import tempfile
+    import shutil
+    from moviepy.editor import ImageSequenceClip, AudioFileClip
+    import os
+
+    temp_dir = tempfile.mkdtemp()
+    try:
+        # Save images
+        image_paths = []
+        for i, img_file in enumerate(images):
+            path = os.path.join(temp_dir, f"img_{i:03d}_{img_file.filename}")
+            with open(path, "wb") as buffer:
+                shutil.copyfileobj(img_file.file, buffer)
+            image_paths.append(path)
+        
+        # Save audio
+        audio_path = os.path.join(temp_dir, f"audio_{audio.filename}")
+        with open(audio_path, "wb") as buffer:
+            shutil.copyfileobj(audio.file, buffer)
+
+        # Create clip
+        # If fps=1, each image shows for 1 second.
+        clip = ImageSequenceClip(image_paths, fps=fps)
+        audio_clip = AudioFileClip(audio_path)
+        
+        # Loop or trim audio to match clip duration
+        if audio_clip.duration > clip.duration:
+            audio_clip = audio_clip.subclip(0, clip.duration)
+        
+        final_clip = clip.set_audio(audio_clip)
+        
+        output_path = os.path.join(temp_dir, "output.mp4")
+        final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac", fps=24)
+
+        return StreamingResponse(
+            open(output_path, "rb"),
+            media_type="video/mp4",
+            headers={"Content-Disposition": f"attachment; filename=video_{audio.filename.split('.')[0]}.mp4"}
+        )
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        # Note: We can't delete temp_dir immediately as StreamingResponse needs it.
+        # In a real app, you'd use a background task or cleaner.
+        pass
+
+@app.get("/image-converter", response_class=HTMLResponse)
+async def image_converter_page():
+    with open("static/image_converter.html", "r") as f:
+        return f.read()
+
 @app.post("/render-pdf")
 async def render_pdf(file: UploadFile = File(...)):
     import fitz  # PyMuPDF
@@ -429,48 +494,46 @@ async def process_rotate_flip(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/convert-jpg-to-png")
-async def convert_jpg_to_png(
-    file: UploadFile = File(...)
-):
-    try:
-        contents = await file.read()
-        img = Image.open(io.BytesIO(contents))
-        
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-        buf.seek(0)
-        
-        filename = os.path.splitext(file.filename)[0] + ".png"
-        return StreamingResponse(
-            buf, 
-            media_type="image/png",
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/convert-png-to-jpg")
-async def convert_png_to_jpg(
+@app.post("/convert-image")
+async def convert_image(
     file: UploadFile = File(...),
+    target_format: str = Form(...), # "jpg", "png", "webp", "bmp", "tiff"
     quality: int = Form(85)
 ):
     try:
         contents = await file.read()
         img = Image.open(io.BytesIO(contents))
         
-        # Convert to RGB (required for JPG as it doesn't support transparency/alpha)
-        if img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
+        output_ext = target_format.lower()
+        save_format = output_ext.upper()
         
+        if output_ext == "jpg":
+            save_format = "JPEG"
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+        elif output_ext == "bmp":
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+        elif output_ext == "webp":
+            save_format = "WEBP"
+        elif output_ext == "tiff":
+            save_format = "TIFF"
+
         buf = io.BytesIO()
-        img.save(buf, format="JPEG", quality=quality)
+        # Quality only applies to JPEG and WEBP
+        if save_format in ("JPEG", "WEBP"):
+            img.save(buf, format=save_format, quality=quality)
+        else:
+            img.save(buf, format=save_format)
+            
         buf.seek(0)
         
-        filename = os.path.splitext(file.filename)[0] + ".jpg"
+        filename = os.path.splitext(file.filename)[0] + f".{output_ext}"
+        media_type = f"image/{output_ext}"
+        
         return StreamingResponse(
             buf, 
-            media_type="image/jpeg",
+            media_type=media_type,
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
     except Exception as e:
