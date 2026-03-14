@@ -21,9 +21,17 @@ jobs:
           script: |
             cd /home/ubuntu/servicehub-suite
             git pull origin main
+            
+            # Recreate venv if broken or missing to avoid path errors
+            if [ ! -d "venv" ]; then
+                python3 -m venv venv
+            fi
+            
             source venv/bin/activate
-            pip install -r requirements.txt
+            # Ensure pip is up to date and install requirements
+            python3 -m pip install --upgrade pip
+            python3 -m pip install -r requirements.txt
+            
             # Restart the systemd service
             sudo systemctl restart thaiedit
-            # Check status to confirm success
             sudo systemctl status thaiedit --no-pager

@@ -13,8 +13,13 @@ fi
 cd $PROJECT_DIR
 
 # 3. Setup Virtual Environment
+if [ -d "venv" ]; then
+    echo "♻️ Refreshing virtual environment..."
+    rm -rf venv
+fi
 python3 -m venv venv
 source venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 
 # 4. Create Systemd Service File
@@ -42,7 +47,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable thaiedit
 sudo systemctl start thaiedit
 
-# 6. Fix Nginx Permissions (so it can read static files in /home/ubuntu)
+# 6. Fix Nginx & Folder Permissions
 sudo usermod -a -G ubuntu www-data
 chmod g+x /home/ubuntu
 sudo chown -R ubuntu:www-data $PROJECT_DIR
