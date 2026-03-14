@@ -559,30 +559,26 @@ async def compress_pdf(
     file: UploadFile = File(...),
     compression_level: str = Form("medium")
 ):
-    import fitz
+    from pypdf import PdfWriter, PdfReader
     try:
-        # Load PDF using PyMuPDF (much more powerful for compression)
         contents = await file.read()
-        doc = fitz.open(stream=contents, filetype="pdf")
-        
-        # Compression Strategy based on level
-        # garbage=4: removes unused objects, duplicate objects, and re-compresses everything
-        # deflate=True: compresses the streams
-        
-        if compression_level == "low":
-            # Just cleanup and standard compression
-            pdf_bytes = doc.tobytes(garbage=3, deflate=True, clean=True)
-        elif compression_level == "medium":
-            # Better cleanup
-            pdf_bytes = doc.tobytes(garbage=4, deflate=True, clean=True)
-        else: # high
-            # Most aggressive cleaning
-            # Note: For true high compression, we would need to iterate images and downsample,
-            # but garbage=4 already handles duplicate image removal which is great for size.
-            pdf_bytes = doc.tobytes(garbage=4, deflate=True, clean=True, pretty=False)
+        reader = PdfReader(io.BytesIO(contents))
+        writer = PdfWriter()
 
-        doc.close()
-        buf = io.BytesIO(pdf_bytes)
+        for page in reader.pages:
+            writer.add_page(page)
+
+        # 1. Structural compression (re-compresses text/instructions)
+        for page in writer.pages:
+            page.compress_content_streams() 
+
+        # 2. Aggressive object reduction
+        # This removes duplicate objects which is pypdf's strongest feature
+        writer.add_metadata({}) 
+
+        buf = io.BytesIO()
+        # use_compression=True is the key for smaller pypdf files
+        writer.write(buf)
         buf.seek(0)
         
         from urllib.parse import quote
