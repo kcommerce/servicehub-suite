@@ -26,35 +26,50 @@
             </div>
 
             <nav class="service-nav">
-                <button onclick="loadService('/crop-service')" class="service-btn">
-                    <span class="icon">✨</span> Crop Master
-                </button>
-                <button onclick="loadService('/pdf-compressor')" class="service-btn">
-                    <span class="icon">📄</span> PDF Compressor
+                <!-- Language Switcher -->
+                <div style="margin-right: 1rem;">
+                    <button onclick="toggleLanguage()" class="service-btn" style="border-color: #636e72; color: #636e72;">
+                        🌐 <span id="lang-text">ภาษาไทย</span>
+                    </button>
+                </div>
+
+                <!-- PDF SECTION -->
+                <div class="nav-group-label" id="label-pdf">PDF Tools</div>
+                <button onclick="loadService('/edit-pdf')" class="service-btn">
+                    <span class="icon">✍️</span> <span id="menu-write">Write on PDF</span>
                 </button>
                 <button onclick="loadService('/merge-pdf')" class="service-btn">
-                    <span class="icon">📑</span> Merge PDF
+                    <span class="icon">📑</span> <span id="menu-join">Join PDF</span>
                 </button>
                 <button onclick="loadService('/watermark-pdf')" class="service-btn">
-                    <span class="icon">🖋️</span> Watermark PDF
+                    <span class="icon">🖋️</span> <span id="menu-watermark">Watermark</span>
                 </button>
-                <button onclick="loadService('/edit-pdf')" class="service-btn">
-                    <span class="icon">✍️</span> Edit PDF
+                <button onclick="loadService('/pdf-compressor')" class="service-btn">
+                    <span class="icon">📄</span> <span id="menu-shrink">Shrink PDF</span>
                 </button>
-                <button onclick="loadService('/image-converter')" class="service-btn">
-                    <span class="icon">🔄</span> Image Converter
+
+                <!-- IMAGE SECTION -->
+                <div class="nav-group-label" id="label-image">Image Tools</div>
+                <button onclick="loadService('/design-tool')" class="service-btn">
+                    <span class="icon">🎨</span> <span id="menu-studio">Studio</span>
+                </button>
+                <button onclick="loadService('/crop-service')" class="service-btn">
+                    <span class="icon">✨</span> <span id="menu-crop">Crop</span>
                 </button>
                 <button onclick="loadService('/rotate-flip')" class="service-btn">
-                    <span class="icon">🔄</span> Rotate/Flip
+                    <span class="icon">🔄</span> <span id="menu-rotate">Rotate</span>
                 </button>
-                <button onclick="loadService('/design-tool')" class="service-btn">
-                    <span class="icon">🎨</span> Design Tool
+                <button onclick="loadService('/image-converter')" class="service-btn">
+                    <span class="icon">🔄</span> <span id="menu-convert">Convert</span>
                 </button>
+
+                <!-- UTILITY SECTION -->
+                <div class="nav-group-label" id="label-other">Other</div>
                 <button onclick="loadService('/legal')" class="service-btn">
-                    <span class="icon">⚖️</span> Legal Center
+                    <span class="icon">⚖️</span> <span id="menu-legal">Legal</span>
                 </button>
-                <button class="service-btn disabled" title="Coming Soon">
-                    <span class="icon">📁</span> More Soon...
+                <button class="service-btn disabled">
+                    <span class="icon">📁</span> <span id="menu-next">Next...</span>
                 </button>
             </nav>
         </header>
@@ -105,6 +120,77 @@
     </div>
 
     <script>
+        let currentLang = 'en';
+        const translations = {
+            en: {
+                langBtn: 'ภาษาไทย',
+                welcomeH2: 'Welcome to ThaiEdit Pro',
+                welcomeP: 'Select a professional service from the top menu to get started.',
+                labelPdf: 'PDF Tools',
+                menuWrite: 'Write on PDF',
+                menuJoin: 'Join PDF',
+                menuWatermark: 'Watermark',
+                menuShrink: 'Shrink PDF',
+                labelImage: 'Image Tools',
+                menuStudio: 'Studio',
+                menuCrop: 'Crop',
+                menuRotate: 'Rotate',
+                menuConvert: 'Convert',
+                labelOther: 'Other',
+                menuLegal: 'Legal',
+                menuNext: 'Next...'
+            },
+            th: {
+                langBtn: 'English',
+                welcomeH2: 'ยินดีต้อนรับสู่ ThaiEdit Pro',
+                welcomeP: 'เลือกเครื่องมือที่ต้องการจากเมนูด้านบนเพื่อเริ่มใช้งาน',
+                labelPdf: 'เครื่องมือ PDF',
+                menuWrite: 'เขียนบน PDF',
+                menuJoin: 'รวมไฟล์ PDF',
+                menuWatermark: 'ใส่ลายน้ำ',
+                menuShrink: 'ลดขนาด PDF',
+                labelImage: 'เครื่องมือรูปภาพ',
+                menuStudio: 'สตูดิโอออกแบบ',
+                menuCrop: 'ครอบตัดรูป',
+                menuRotate: 'หมุน/กลับรูป',
+                menuConvert: 'แปลงไฟล์รูป',
+                labelOther: 'อื่นๆ',
+                menuLegal: 'กฎหมาย & นโยบาย',
+                menuNext: 'เพิ่มเติม...'
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = (currentLang === 'en') ? 'th' : 'en';
+            const t = translations[currentLang];
+
+            // Update UI Elements
+            document.getElementById('lang-text').textContent = t.langBtn;
+            
+            // Welcome Section (if visible)
+            const welcomeH2 = document.querySelector('#welcome-message h2');
+            const welcomeP = document.querySelector('#welcome-message p');
+            if (welcomeH2) welcomeH2.textContent = t.welcomeH2;
+            if (welcomeP) welcomeP.textContent = t.welcomeP;
+
+            // Labels
+            document.getElementById('label-pdf').textContent = t.labelPdf;
+            document.getElementById('label-image').textContent = t.labelImage;
+            document.getElementById('label-other').textContent = t.labelOther;
+
+            // Menu Buttons
+            document.getElementById('menu-write').textContent = t.menuWrite;
+            document.getElementById('menu-join').textContent = t.menuJoin;
+            document.getElementById('menu-watermark').textContent = t.menuWatermark;
+            document.getElementById('menu-shrink').textContent = t.menuShrink;
+            document.getElementById('menu-studio').textContent = t.menuStudio;
+            document.getElementById('menu-crop').textContent = t.menuCrop;
+            document.getElementById('menu-rotate').textContent = t.menuRotate;
+            document.getElementById('menu-convert').textContent = t.menuConvert;
+            document.getElementById('menu-legal').textContent = t.menuLegal;
+            document.getElementById('menu-next').textContent = t.menuNext;
+        }
+
         function loadService(url) {
             document.getElementById('welcome-message').style.display = 'none';
             const iframe = document.getElementById('service-content');

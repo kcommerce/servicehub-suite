@@ -54,6 +54,18 @@ body, html {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
+    align-items: center; /* Align labels and buttons */
+}
+
+.nav-group-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+    color: #b2bec3;
+    margin: 0 0.5rem;
+    padding-bottom: 2px;
+    border-bottom: 1.5px solid #eee;
 }
 
 .service-btn {
