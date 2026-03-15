@@ -17,99 +17,115 @@ body, html {
     height: 100%;
     overflow: hidden;
 }
-
 .portal-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh; /* Allow growth */
     width: 100vw;
 }
 
 .top-frame {
-    min-height: 70px;
-    height: auto; /* Allow growth if menus wrap */
+    min-height: 60px;
     background: var(--portal-nav);
     display: flex;
-    flex-wrap: wrap; /* CRITICAL: Allow wrapping */
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 2rem;
+    padding: 0.5rem 1.5rem;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     z-index: 1000;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .portal-logo {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 800;
     color: var(--portal-primary);
     white-space: nowrap;
 }
 
 .header-ad {
-    order: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .service-nav {
     display: flex;
-    flex-wrap: wrap; /* Allow buttons to wrap */
-    gap: 0.5rem;
-    order: 3;
+    flex-wrap: wrap;
+    gap: 0.4rem;
 }
 
 .service-btn {
-    padding: 0.4rem 0.8rem; /* More compact */
-    border: 2px solid var(--portal-btn);
+    padding: 0.4rem 0.6rem;
+    border: 1.5px solid var(--portal-btn);
     background: transparent;
     color: var(--portal-btn);
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 600;
-    font-size: 0.85rem; /* Smaller font */
+    font-size: 0.8rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.3rem;
     transition: all 0.2s;
-    white-space: nowrap;
-}
-
-/* Mobile Adjustments */
-@media (max-width: 1200px) {
-    .top-frame {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    .header-ad {
-        margin: 1rem 0 !important;
-    }
-}
-
-.service-btn:hover:not(.disabled) {
-    background: var(--portal-btn);
-    color: white;
-    transform: translateY(-1px);
-}
-
-.service-btn.disabled {
-    opacity: 0.5;
-    cursor: default;
-    border-color: #dfe6e9;
-    color: #b2bec3;
 }
 
 .bottom-frame {
     flex: 1;
     background: var(--portal-bg);
     position: relative;
-    overflow: hidden;
+    /* On mobile, we want the iframe to be as tall as its content */
+    display: flex;
+    flex-direction: column;
 }
 
 #service-content {
     width: 100%;
-    height: 100%;
-    display: none;
+    flex: 1;
+    min-height: 85vh; /* Ensure it takes up most of the screen */
     border: none;
+}
+
+.mobile-ad {
+    display: none;
+}
+
+/* Mobile Adjustments (Phones) */
+@media (max-width: 768px) {
+    .desktop-ad {
+        display: none !important;
+    }
+    .mobile-ad {
+        display: block !important;
+    }
+    .top-frame {
+        padding: 0.5rem;
+        flex-direction: row; /* Keep Logo and some space on same line */
+        justify-content: center;
+    }
+
+    .portal-logo {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.2rem;
+    }
+
+    .header-ad {
+        width: 100%;
+        max-height: 60px;
+        overflow: hidden;
+        margin: 0.5rem 0 !important;
+    }
+
+    .service-nav {
+        justify-content: center;
+        width: 100%;
+    }
+
+    #service-content {
+        min-height: 1000px; /* Allow long tools to be scrollable */
+    }
 }
 
 .welcome {
