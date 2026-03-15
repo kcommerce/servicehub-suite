@@ -19,73 +19,135 @@
 </head>
 <body>
     <div class="legal-container">
-        <h1>Legal Center</h1>
-        <p class="last-updated">Last Updated: March 14, 2026</p>
+        <h1 id="title">Legal Center</h1>
+        <p class="last-updated" id="last-updated">Last Updated: March 14, 2026</p>
 
         <nav class="legal-nav">
-            <a href="#terms">Terms of Service</a>
-            <a href="#privacy">Privacy Policy</a>
-            <a href="#cookies">Cookie Policy</a>
-            <a href="#oss">Open Source</a>
+            <a href="#terms" id="nav-terms">Terms of Service</a>
+            <a href="#privacy" id="nav-privacy">Privacy Policy</a>
+            <a href="#cookies" id="nav-cookies">Cookie Policy</a>
+            <a href="#oss" id="nav-oss">Open Source</a>
         </nav>
 
         <section id="terms">
-            <h2>1. Terms of Service</h2>
-            <p>Welcome to ThaiEdit Pro. By accessing our website, you agree to be bound by these terms.</p>
-            <h3>Use License</h3>
-            <p>Permission is granted to temporarily use the tools provided on ThaiEdit Pro for personal or commercial transitory viewing and processing only.</p>
-            <h3>Disclaimer</h3>
-            <p>The materials on this website are provided on an 'as is' basis. ThaiEdit Pro makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
-            <h3>Limitations</h3>
-            <p>In no event shall ThaiEdit Pro or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on ThaiEdit Pro.</p>
+            <h2 id="h-terms">1. Terms of Service</h2>
+            <div id="content-terms">
+                <p>Welcome to ThaiEdit Pro. By accessing our website, you agree to be bound by these terms.</p>
+                <h3>Use License</h3>
+                <p>Permission is granted to temporarily use the tools provided on ThaiEdit Pro for personal or commercial transitory viewing and processing only.</p>
+                <h3>Disclaimer</h3>
+                <p>The materials on this website are provided on an 'as is' basis. ThaiEdit Pro makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
+            </div>
         </section>
 
         <section id="privacy">
-            <h2>2. Privacy Policy</h2>
-            <p>Your privacy is critical to us. ThaiEdit Pro follows these core principles:</p>
-            <ul>
-                <li><b>In-Memory Processing:</b> We process your files in the server's volatile memory. We do not store your original or edited files on our permanent storage.</li>
-                <li><b>Automatic Deletion:</b> Once your download is complete or your connection is closed, all data related to your session is wiped.</li>
-                <li><b>Data Collection:</b> We do not require registration. We do not collect names, emails, or personal identification unless you voluntarily provide it for support.</li>
-            </ul>
+            <h2 id="h-privacy">2. Privacy Policy</h2>
+            <div id="content-privacy">
+                <p>Your privacy is critical to us. ThaiEdit Pro follows these core principles:</p>
+                <ul>
+                    <li><b>In-Memory Processing:</b> We process your files in the server's volatile memory. We do not store your original or edited files on our permanent storage.</li>
+                    <li><b>Automatic Deletion:</b> Once your download is complete or your connection is closed, all data related to your session is wiped.</li>
+                </ul>
+            </div>
         </section>
 
         <section id="cookies">
-            <h2>3. Cookie Policy</h2>
-            <p>ThaiEdit Pro uses cookies to improve your experience and support our business model.</p>
-            <h3>What are cookies?</h3>
-            <p>Cookies are small text files stored on your device by your browser.</p>
-            <h3>How we use them:</h3>
-            <ul>
-                <li><b>Essential Cookies:</b> Used to maintain your session and ensure the tools function correctly.</li>
-                <li><b>Advertising Cookies:</b> We use Google AdSense to show ads. Google may use cookies to serve ads based on your prior visits to this or other websites.</li>
-                <li><b>Analytics:</b> We may use basic analytics to understand how many people use our tools.</li>
-            </ul>
-            <p>You can choose to disable cookies in your browser settings, though some features of the site may not function perfectly.</p>
+            <h2 id="h-cookies">3. Cookie Policy</h2>
+            <div id="content-cookies">
+                <p>ThaiEdit Pro uses cookies to improve your experience and support our business model.</p>
+                <h3>How we use them:</h3>
+                <ul>
+                    <li><b>Essential Cookies:</b> Used to maintain your session and ensure the tools function correctly.</li>
+                    <li><b>Advertising Cookies:</b> We use Google AdSense to show ads.</li>
+                </ul>
+            </div>
         </section>
 
         <section id="oss">
-            <h2>4. Open Source & AGPL Compliance</h2>
-            <p>ThaiEdit Pro is committed to the open-source community. As required by the <b>GNU AGPL v3 license</b>, the full source code for this entire platform is freely available to all users:</p>
-            
-            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--primary); text-align: center; margin: 1rem 0;">
-                <p style="margin-bottom: 0.5rem; font-weight: bold; color: var(--portal-primary);">Download Source Code:</p>
-                <a href="https://github.com/kcommerce/servicehub-suite" target="_blank" style="color: var(--primary); font-size: 1.1rem; text-decoration: underline;">github.com/kcommerce/servicehub-suite</a>
+            <h2 id="h-oss">4. Open Source & AGPL Compliance</h2>
+            <div id="content-oss">
+                <p>ThaiEdit Pro is proud to be open-source. As required by the <b>GNU AGPL v3 license</b>, the full source code for this entire platform is freely available to all users:</p>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--primary); text-align: center; margin: 1rem 0;">
+                    <p style="margin-bottom: 0.5rem; font-weight: bold; color: var(--portal-primary);">Download Source Code:</p>
+                    <a href="https://github.com/kcommerce/servicehub-suite" target="_blank" style="color: var(--primary); font-size: 1.1rem; text-decoration: underline;">github.com/kcommerce/servicehub-suite</a>
+                </div>
+                <p>Full license details in <a href="https://github.com/kcommerce/servicehub-suite/blob/main/ATTRIBUTIONS.md" target="_blank" style="color: var(--primary);">Attributions</a>.</p>
             </div>
-
-            <p>This project is made possible by these professional-grade libraries:</p>
-            <ul>
-                <li><b>PyMuPDF (fitz):</b> GNU AGPL v3 (Core PDF Engine)</li>
-                <li><b>FastAPI:</b> MIT License (Backend Framework)</li>
-                <li><b>Pillow (PIL):</b> HPND License (Image Processing)</li>
-                <li><b>Sarabun Font:</b> SIL Open Font License 1.1 (Thai Typography)</li>
-            </ul>
-            <p>For a full list of third-party licenses and authors, please visit our <a href="https://github.com/kcommerce/servicehub-suite/blob/main/ATTRIBUTIONS.md" target="_blank" style="color: var(--primary);">detailed Attributions page</a>.</p>
         </section>
 
         <footer style="margin-top: 5rem; text-align: center; border-top: 1px solid #eee; padding-top: 2rem;">
             <p>© 2026 ThaiEdit Pro. Professional Utility Suite.</p>
         </footer>
     </div>
+
+    <script>
+        const translations = {
+            th: {
+                title: 'ศูนย์ข้อมูลทางกฎหมาย',
+                updated: 'อัปเดตล่าสุด: 14 มีนาคม 2026',
+                navTerms: 'ข้อกำหนดการใช้งาน',
+                navPrivacy: 'นโยบายความเป็นส่วนตัว',
+                navCookies: 'นโยบายคุกกี้',
+                navOss: 'โอเพนซอร์ส',
+                hTerms: '1. ข้อกำหนดการใช้งาน',
+                hPrivacy: '2. นโยบายความเป็นส่วนตัว',
+                hCookies: '3. นโยบายคุกกี้',
+                hOss: '4. โอเพนซอร์สและการปฏิบัติตาม AGPL',
+                contentTerms: `
+                    <p>ยินดีต้อนรับสู่ ThaiEdit Pro การเข้าใช้งานเว็บไซต์นี้ถือว่าคุณยอมรับข้อตกลงเหล่านี้</p>
+                    <h3>สิทธิ์การใช้งาน</h3>
+                    <p>เราอนุญาตให้ใช้งานเครื่องมือต่างๆ บน ThaiEdit Pro เป็นการชั่วคราวเพื่อวัตถุประสงค์ส่วนตัวหรือเชิงพาณิชย์เท่านั้น</p>
+                    <h3>การปฏิเสธความรับผิดชอบ</h3>
+                    <p>เนื้อหาบนเว็บไซต์นี้จัดทำขึ้นตามสภาพจริง (as is) ThaiEdit Pro ไม่มีการรับประกันใดๆ ทั้งสิ้น ไม่ว่าโดยชัดแจ้งหรือโดยนัย</p>
+                `,
+                contentPrivacy: `
+                    <p>ความเป็นส่วนตัวของคุณสำคัญที่สุดสำหรับเรา ThaiEdit Pro ยึดหลักการดังนี้:</p>
+                    <ul>
+                        <li><b>ประมวลผลในหน่วยความจำ:</b> เราประมวลผลไฟล์ของคุณในหน่วยความจำชั่วคราวของเซิร์ฟเวอร์เท่านั้น เราไม่มีการเก็บไฟล์ต้นฉบับหรือไฟล์ที่แก้ไขแล้วลงในฮาร์ดไดรฟ์ถาวร</li>
+                        <li><b>ลบข้อมูลอัตโนมัติ:</b> เมื่อคุณดาวน์โหลดไฟล์เสร็จสิ้นหรือปิดการเชื่อมต่อ ข้อมูลทั้งหมดที่เกี่ยวข้องกับเซสชันของคุณจะถูกลบทิ้งทันที</li>
+                    </ul>
+                `,
+                contentCookies: `
+                    <p>ThaiEdit Pro ใช้คุกกี้เพื่อปรับปรุงประสบการณ์การใช้งานและสนับสนุนรูปแบบธุรกิจของเรา</p>
+                    <h3>เราใช้งานอย่างไร:</h3>
+                    <ul>
+                        <li><b>คุกกี้ที่จำเป็น:</b> ใช้เพื่อรักษาเซสชันการใช้งานและให้เครื่องมือทำงานได้อย่างถูกต้อง</li>
+                        <li><b>คุกกี้โฆษณา:</b> เราใช้งาน Google AdSense เพื่อแสดงโฆษณา</li>
+                    </ul>
+                `,
+                contentOss: `
+                    <p>ThaiEdit Pro ภูมิใจที่เป็นโอเพนซอร์ส ตามข้อกำหนดของ <b>สัญญาอนุญาต GNU AGPL v3</b> ซอร์สโค้ดทั้งหมดของแพลตฟอร์มนี้เปิดเผยให้ผู้ใช้ทุกคนเข้าถึงได้ฟรี:</p>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--primary); text-align: center; margin: 1rem 0;">
+                        <p style="margin-bottom: 0.5rem; font-weight: bold; color: var(--portal-primary);">ดาวน์โหลดซอร์สโค้ด:</p>
+                        <a href="https://github.com/kcommerce/servicehub-suite" target="_blank" style="color: var(--primary); font-size: 1.1rem; text-decoration: underline;">github.com/kcommerce/servicehub-suite</a>
+                    </div>
+                    <p>ดูรายละเอียดใบอนุญาตทั้งหมดได้ที่หน้า <a href="https://github.com/kcommerce/servicehub-suite/blob/main/ATTRIBUTIONS.md" target="_blank" style="color: var(--primary);">Attributions</a></p>
+                `
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const lang = urlParams.get('lang');
+            
+            if (lang === 'th') {
+                const t = translations.th;
+                document.getElementById('title').textContent = t.title;
+                document.getElementById('last-updated').textContent = t.updated;
+                document.getElementById('nav-terms').textContent = t.navTerms;
+                document.getElementById('nav-privacy').textContent = t.navPrivacy;
+                document.getElementById('nav-cookies').textContent = t.navCookies;
+                document.getElementById('nav-oss').textContent = t.navOss;
+                document.getElementById('h-terms').textContent = t.hTerms;
+                document.getElementById('h-privacy').textContent = t.hPrivacy;
+                document.getElementById('h-cookies').textContent = t.hCookies;
+                document.getElementById('h-oss').textContent = t.hOss;
+                document.getElementById('content-terms').innerHTML = t.contentTerms;
+                document.getElementById('content-privacy').innerHTML = t.contentPrivacy;
+                document.getElementById('content-cookies').innerHTML = t.contentCookies;
+                document.getElementById('content-oss').innerHTML = t.contentOss;
+            }
+        });
+    </script>
 </body>
 </html>

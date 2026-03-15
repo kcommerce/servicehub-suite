@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Free online PDF and Image editor. Edit PDF with Thai fonts (Sarabun), merge PDF, compress PDF, and design images with 3D emojis. 100% free, no registration required.">
+    <meta name="keywords" content="Edit PDF online, Thai PDF Editor, Sarabun Font PDF, Merge PDF, Compress PDF, Image to PDF, Resize Image, Photo Editor, 3D Emojis, Watermark PDF, แก้ไข PDF ออนไลน์, แก้ PDF ฟอนต์สารบรรณ, รวมไฟล์ PDF, ลดขนาด PDF, แปลงรูปภาพเป็น PDF">
+    <meta name="author" content="ThaiEdit Pro">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://thaiedit.com/">
+    <meta property="og:title" content="ThaiEdit Pro | Free Online PDF & Image Editor">
+    <meta property="og:description" content="The ultimate free suite for PDF and Image tools. Professional Thai font support included.">
+    <meta property="og:image" content="https://thaiedit.com/static/stickers/wow.png">
+
     <title>ThaiEdit Pro | Universal Editor Suite</title>
     <link rel="stylesheet" type="text/css" href="/static/css/portal.css?v=1.2.3">
     <link rel="stylesheet" type="text/css" href="/static/css/style.css?v=1.2.3">
@@ -201,7 +212,10 @@
             document.getElementById('welcome-message').style.display = 'none';
             const iframe = document.getElementById('service-content');
             iframe.style.display = 'block';
-            iframe.src = url;
+            
+            // Add language parameter to URL
+            const langUrl = url.includes('?') ? `${url}&lang=${currentLang}` : `${url}?lang=${currentLang}`;
+            iframe.src = langUrl;
         }
     </script>
 
