@@ -122,11 +122,19 @@
 
                 <!-- Footer with Legal Links -->
                 <footer style="margin-top: 4rem; padding: 2rem; border-top: 1px solid #eee; width: 100%; color: #999; font-size: 0.8rem;">
-                    <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem;">
                         <a href="javascript:void(0)" onclick="loadService('/legal#terms')" style="color: #666; text-decoration: none;">Terms of Service</a>
                         <a href="javascript:void(0)" onclick="loadService('/legal#privacy')" style="color: #666; text-decoration: none;">Privacy Policy</a>
                         <a href="javascript:void(0)" onclick="loadService('/legal#cookies')" style="color: #666; text-decoration: none;">Cookie Policy</a>
                     </div>
+                    
+                    <!-- Support / Donate Button -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <a href="https://paypal.me/sakchart" target="_blank" class="service-btn" style="display: inline-flex; background: #0070ba; color: white; border: none; padding: 0.6rem 1.5rem; text-decoration: none;">
+                            ☕ <span id="donate-text">Support this project (Donate)</span>
+                        </a>
+                    </div>
+
                     <p>© 2026 ThaiEdit Pro. All tools process files locally in-memory for maximum privacy.</p>
                 </footer>
             </div>
@@ -153,7 +161,8 @@
                 menuConvert: 'Convert',
                 labelOther: 'Other',
                 menuLegal: 'Legal',
-                menuNext: 'Next...'
+                menuNext: 'Next...',
+                donateBtn: 'Support this project (Donate)'
             },
             th: {
                 langBtn: 'English',
@@ -172,7 +181,8 @@
                 menuConvert: 'แปลงไฟล์รูป',
                 labelOther: 'อื่นๆ',
                 menuLegal: 'กฎหมาย & นโยบาย',
-                menuNext: 'เพิ่มเติม...'
+                menuNext: 'เพิ่มเติม...',
+                donateBtn: 'สนับสนุนโครงการนี้ (บริจาค)'
             }
         };
 
@@ -206,6 +216,7 @@
             document.getElementById('menu-convert').textContent = t.menuConvert;
             document.getElementById('menu-legal').textContent = t.menuLegal;
             document.getElementById('menu-next').textContent = t.menuNext;
+            document.getElementById('donate-text').textContent = t.donateBtn;
         }
 
         function loadService(url) {
