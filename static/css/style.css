@@ -251,7 +251,8 @@ h3 {
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     main {
-        flex-direction: column;
+        flex-direction: column; /* Stack vertically */
+        overflow-y: auto; /* Allow scrolling the whole page */
     }
     
     .sidebar {
@@ -260,16 +261,20 @@ h3 {
         border-right: none;
         border-bottom: 1px solid #eee;
         padding: 1rem;
-        order: 2;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: white;
     }
     
     .canvas-container {
-        height: 50vh;
-        order: 1;
+        width: 100%;
+        min-height: 60vh;
         padding: 1rem;
+        overflow: visible;
     }
     
     .preset-group {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     }
 }

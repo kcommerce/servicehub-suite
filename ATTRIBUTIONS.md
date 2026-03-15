@@ -1,60 +1,44 @@
 # Open Source Attributions
 
-ThaiEdit Pro is made possible by the following open-source software and assets. We are grateful to the developers and communities who maintain these projects.
+ThaiEdit Pro is built upon amazing open-source software. For maximum transparency and compliance, the full license text for each library is provided in the `licenses/` directory of this repository.
 
 ---
 
-## Backend Framework
-### FastAPI
-- **License:** MIT
-- **Project:** https://github.com/tiangolo/fastapi
-- **Copyright:** (c) 2018 Sebastián Ramírez
-
----
-
-## Image & PDF Processing
+## 📄 PDF & Document Processing
 ### PyMuPDF (fitz)
-- **License:** **GNU AGPL v3**
-- **Project:** https://github.com/pymupdf/PyMuPDF
-- **Compliance:** As required by the AGPL v3, the source code for ThaiEdit Pro is available to all users at: **https://github.com/kcommerce/servicehub-suite**
-
-### Pillow (PIL)
-- **License:** HPND (Historical Permission Notice and Disclaimer)
-- **Project:** https://github.com/python-pillow/Pillow
-- **Copyright:** (c) 2010-2024 by Jeffrey A. Clark and contributors
+- **License:** GNU AGPL v3
+- **Full Text:** [licenses/LICENSE-PYMUPDF.txt](licenses/LICENSE-PYMUPDF.txt)
 
 ### pypdf
 - **License:** BSD-3-Clause
-- **Project:** https://github.com/py-pdf/pypdf
-- **Copyright:** (c) 2006-2008, Mathieu Fenniak
+- **Full Text:** [licenses/LICENSE-PYPDF.txt](licenses/LICENSE-PYPDF.txt)
 
 ---
 
-## Frontend Tools & Assets
+## 🎨 Image & Design Tools
+### Pillow (PIL)
+- **License:** HPND
+- **Full Text:** [licenses/LICENSE-PILLOW.txt](licenses/LICENSE-PILLOW.txt)
+
 ### Cropper.js
 - **License:** MIT
-- **Project:** https://github.com/fengyuanchen/cropperjs
-- **Copyright:** (c) 2015-present Chen Fengyuan
-
-### Sarabun Font
-- **License:** SIL Open Font License 1.1
-- **Project:** https://github.com/google/fonts
-- **Copyright:** (c) 2015-2018 Google Inc.
-
-### Fluent Emojis
-- **License:** MIT
-- **Project:** https://github.com/microsoft/fluentui-emoji
-- **Copyright:** (c) Microsoft Corporation
+- **Full Text:** [licenses/LICENSE-CROPPERJS.txt](licenses/LICENSE-CROPPERJS.txt)
 
 ---
 
-## License Texts Summary
+## 🌐 Web & Backend
+### FastAPI
+- **License:** MIT
+- **Full Text:** [licenses/LICENSE-FASTAPI.txt](licenses/LICENSE-FASTAPI.txt)
 
-### GNU AGPL v3
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+---
 
-### MIT License
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction...
+## 🔤 Fonts & Assets
+### Sarabun Font
+- **License:** SIL Open Font License 1.1
+- **Full Text:** [licenses/LICENSE-SARABUN.txt](licenses/LICENSE-SARABUN.txt)
 
-### SIL Open Font License 1.1
-Permission is hereby granted, free of charge, to any person obtaining a copy of the Font Software, to use, study, copy, merge, embed, modify, redistribute, and sell modified and unmodified copies...
+---
+
+## 📜 Repository License
+Your own project's primary license can be found in the root directory: [LICENSE](LICENSE)

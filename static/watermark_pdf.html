@@ -21,6 +21,24 @@
         .swatch { height: 25px; border-radius: 4px; border: 1px solid #eee; cursor: pointer; }
         .hint { font-size: 0.8rem; color: #636e72; background: #fff9db; padding: 0.8rem; border-radius: 8px; border-left: 4px solid #fcc419; }
         .loader-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+                overflow-y: auto;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #eee;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            .canvas-container {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
