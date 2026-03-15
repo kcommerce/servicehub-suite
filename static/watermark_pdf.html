@@ -19,26 +19,9 @@
         .color-box { flex: 1; height: 40px; border-radius: 4px; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; }
         .color-presets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
         .swatch { height: 25px; border-radius: 4px; border: 1px solid #eee; cursor: pointer; }
-        .hint { font-size: 0.8rem; color: #636e72; background: #fff9db; padding: 0.8rem; border-radius: 8px; border-left: 4px solid #fcc419; }
+        .hint { font-size: 0.8rem; color: #636e72; background: #fff9db; padding: 0.8rem; border-radius: 8px; border-left: 4px solid #fcc419; margin-bottom: 1rem; }
         .loader-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        @media (max-width: 768px) {
-            main {
-                flex-direction: column;
-                overflow-y: auto;
-            }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid #eee;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-            }
-            .canvas-container {
-                padding: 1rem;
-            }
-        }
+        .process-info { font-size: 0.75rem; color: #999; margin-top: 0.8rem; text-align: center; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -64,9 +47,12 @@
                 </div>
                 <div id="colorPresets" class="color-presets"></div>
             </div>
-            <div class="hint">💡 <b>Tip:</b> Drag the text to position it on the first page.</div>
+            <div class="hint">💡 <b>How to:</b><br>• Click on page to <b>add</b> text<br>• Drag text to <b>move</b> it<br>• Right-click to <b>remove</b></div>
             <section class="actions">
                 <button id="downloadBtn" class="download-btn" disabled>🚀 Process & Download PDF</button>
+                <div class="process-info">
+                    Note: The system loads only the <b>first page</b> for your design. Your watermark will be applied to <b>every page</b> in the final download.
+                </div>
             </section>
             <!-- Ad Container -->
             <div style="margin-top: auto; padding-top: 1rem; text-align: center;">
@@ -90,14 +76,13 @@
         const colorPresetsGrid = document.getElementById('colorPresets');
 
         let pdfFile = null, firstPageImg = null, canvas = null, ctx = null;
-        let textX = 200, textY = 200;
-        let isDragging = false;
-        let dragOffsetX = 0, dragOffsetY = 0;
+        let watermarks = []; 
+        let draggingWM = null, dragOffsetX = 0, dragOffsetY = 0;
 
         const presets = ['#000000', '#555555', '#ffffff', '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#1abc9c', '#3498db', '#9b59b6'];
         presets.forEach(c => {
             const s = document.createElement('div'); s.className = 'swatch'; s.style.background = c;
-            s.onclick = () => { colorInput.value = c; updateColorUI(c); draw(); };
+            s.onclick = () => { colorInput.value = c; updateColorUI(c); };
             colorPresetsGrid.appendChild(s);
         });
 
@@ -108,9 +93,8 @@
             colorPreview.style.color = (r*0.299 + g*0.587 + b*0.114) > 186 ? 'black' : 'white';
         }
 
-        colorInput.oninput = (e) => { updateColorUI(e.target.value); draw(); };
-        textInput.oninput = draw;
-        fontSizeInput.oninput = (e) => { document.getElementById('sizeVal').textContent = e.target.value; draw(); };
+        colorInput.oninput = (e) => { updateColorUI(e.target.value); };
+        fontSizeInput.oninput = (e) => { document.getElementById('sizeVal').textContent = e.target.value; };
 
         pdfUpload.addEventListener('change', async (e) => {
             if (e.target.files.length > 0) {
@@ -131,9 +115,13 @@
                 canvas = document.createElement('canvas'); canvas.width = p.width; canvas.height = p.height;
                 canvas.style.width = (p.width / 2) + 'px'; canvas.style.height = (p.height / 2) + 'px';
                 ctx = canvas.getContext('2d');
-                firstPageImg = new Image(); firstPageImg.onload = () => { draw(); }; firstPageImg.src = p.image;
+                firstPageImg = new Image(); 
+                firstPageImg.onload = () => { draw(); }; 
+                firstPageImg.src = p.image;
                 canvas.onmousedown = handleMouseDown;
+                canvas.oncontextmenu = (e) => { e.preventDefault(); handleRightClick(e); };
                 wrapper.appendChild(canvas); pagesContainer.appendChild(wrapper);
+                watermarks = [];
                 downloadBtn.disabled = false;
             } catch (err) { alert('Error rendering PDF'); } finally { loader.style.display = 'none'; }
         }
@@ -143,17 +131,16 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height); 
             ctx.drawImage(firstPageImg, 0, 0);
             
-            ctx.save();
-            ctx.translate(textX, textY);
-            
-            const fontSize = parseInt(fontSizeInput.value);
-            ctx.font = `${fontSize}px Sarabun`; 
-            ctx.fillStyle = colorInput.value; 
-            ctx.textAlign = 'center'; 
-            ctx.textBaseline = 'middle';
-            
-            ctx.fillText(textInput.value, 0, 0);
-            ctx.restore();
+            watermarks.forEach(wm => {
+                ctx.save();
+                ctx.translate(wm.x, wm.y);
+                ctx.font = `${wm.font_size}px Sarabun`; 
+                ctx.fillStyle = wm.color; 
+                ctx.textAlign = 'center'; 
+                ctx.textBaseline = 'middle';
+                ctx.fillText(wm.text, 0, 0);
+                ctx.restore();
+            });
         }
 
         function handleMouseDown(e) {
@@ -161,51 +148,79 @@
             const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
             const my = (e.clientY - rect.top) * (canvas.height / rect.height);
 
-            // Simple Dragging Only
-            isDragging = true; dragOffsetX = mx - textX; dragOffsetY = my - textY;
+            // Check if clicking existing text to drag
+            for (let i = watermarks.length - 1; i >= 0; i--) {
+                const wm = watermarks[i];
+                ctx.font = `${wm.font_size}px Sarabun`;
+                const metrics = ctx.measureText(wm.text);
+                if (mx >= wm.x - metrics.width/2 && mx <= wm.x + metrics.width/2 && 
+                    my >= wm.y - wm.font_size/2 && my <= wm.y + wm.font_size/2) {
+                    draggingWM = wm;
+                    dragOffsetX = mx - wm.x;
+                    dragOffsetY = my - wm.y;
+                    return;
+                }
+            }
+
+            // Otherwise add new text
+            const newWM = {
+                text: textInput.value,
+                font_size: parseInt(fontSizeInput.value),
+                color: colorInput.value,
+                x: mx,
+                y: my,
+                canvas_w: canvas.width,
+                canvas_h: canvas.height
+            };
+            watermarks.push(newWM);
+            draw();
+        }
+
+        function handleRightClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+            for (let i = watermarks.length - 1; i >= 0; i--) {
+                const wm = watermarks[i];
+                ctx.font = `${wm.font_size}px Sarabun`;
+                const metrics = ctx.measureText(wm.text);
+                if (mx >= wm.x - metrics.width/2 && mx <= wm.x + metrics.width/2 && 
+                    my >= wm.y - wm.font_size/2 && my <= wm.y + wm.font_size/2) {
+                    watermarks.splice(i, 1);
+                    draw();
+                    return;
+                }
+            }
         }
 
         window.onmousemove = (e) => {
-            if (!canvas || !isDragging) return;
+            if (!canvas || !draggingWM) return;
             const rect = canvas.getBoundingClientRect();
-            textX = (e.clientX - rect.left) * (canvas.width / rect.width) - dragOffsetX;
-            textY = (e.clientY - rect.top) * (canvas.height / rect.height) - dragOffsetY;
+            draggingWM.x = (e.clientX - rect.left) * (canvas.width / rect.width) - dragOffsetX;
+            draggingWM.y = (e.clientY - rect.top) * (canvas.height / rect.height) - dragOffsetY;
             draw();
         };
-        window.onmouseup = () => { isDragging = false; };
+        window.onmouseup = () => { draggingWM = null; };
 
         downloadBtn.onclick = async () => {
-            console.log("DEBUG: Download clicked. Preparing request...");
+            if(watermarks.length === 0) { alert("Please add at least one watermark."); return; }
             loader.style.display = 'flex';
             const formData = new FormData();
             formData.append('file', pdfFile);
-            formData.append('text', textInput.value);
-            formData.append('x', textX); formData.append('y', textY);
-            formData.append('font_size', fontSizeInput.value);
-            formData.append('color', colorInput.value);
-            formData.append('canvas_w', canvas.width); formData.append('canvas_h', canvas.height);
+            formData.append('watermarks_json', JSON.stringify(watermarks));
 
             try {
-                console.log("DEBUG: Sending request to /process-watermark-pdf...");
                 const res = await fetch('/process-watermark-pdf', { method: 'POST', body: formData });
-                console.log("DEBUG: Response status:", res.status);
-
                 if (res.ok) {
                     const blob = await res.blob();
-                    console.log("DEBUG: Blob received, size:", blob.size);
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a'); a.href = url; a.download = `watermarked_${pdfFile.name}`;
                     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                    console.log("DEBUG: Download triggered successfully");
                 } else {
-                    const errText = await res.text();
-                    console.error("DEBUG: Server error:", errText);
-                    alert('Error from server: ' + errText);
+                    const err = await res.text();
+                    alert('Error from server: ' + err);
                 }
-            } catch (err) { 
-                console.error("DEBUG: Connection error:", err);
-                alert('Connection error. Check console for details.'); 
-            } finally { loader.style.display = 'none'; }
+            } catch (err) { alert('Connection error'); } finally { loader.style.display = 'none'; }
         }
     </script>
 </body>

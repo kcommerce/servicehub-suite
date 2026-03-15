@@ -85,71 +85,65 @@ async def process_image_to_pdf(
 @app.post("/process-watermark-pdf")
 async def process_watermark_pdf(
     file: UploadFile = File(...),
-    text: str = Form(...),
-    x: float = Form(...),
-    y: float = Form(...),
-    font_size: float = Form(...),
-    color: str = Form(...),
-    canvas_w: float = Form(...),
-    canvas_h: float = Form(...)
+    watermarks_json: str = Form(...)
 ):
     import fitz
+    import json
     import traceback
     try:
-        print(f"DEBUG: Starting watermark for {file.filename}")
-        print(f"DEBUG: Params - text: {text}, x: {x}, y: {y}, size: {font_size}")
-        
+        print(f"DEBUG: Starting multi-watermark for {file.filename}")
         contents = await file.read()
         doc = fitz.open(stream=contents, filetype="pdf")
+        watermarks = json.loads(watermarks_json)
         font_path = "static/thai_font.ttf"
         
-        hex_color = color.lstrip('#')
-        rgb = tuple(int(hex_color[i:i+2], 16)/255 for i in (0, 2, 4))
-
         for i in range(len(doc)):
             page = doc[i]
             p_width = page.rect.width
             p_height = page.rect.height
             
-            scale_x = p_width / canvas_w
-            scale_y = p_height / canvas_h
-            
-            text_x = x * scale_x
-            text_y = y * scale_y
-            f_size = font_size * scale_x
-            
-            # Create a box around the point to use insert_textbox (which has better alignment)
-            # A large enough box ensuring text fits
-            rect_width = p_width 
-            rect_height = f_size * 2
-            target_rect = fitz.Rect(
-                text_x - rect_width/2, 
-                text_y - rect_height/2, 
-                text_x + rect_width/2, 
-                text_y + rect_height/2
-            )
-            
-            page.insert_textbox(
-                target_rect, 
-                text, 
-                fontsize=f_size,
-                color=rgb,
-                fontname=f"wm_{i}", 
-                fontfile=font_path,
-                rotate=0, # Fixed to horizontal
-                align=1, # Center
-                overlay=True
-            )
+            for j, wm in enumerate(watermarks):
+                # Map coordinates
+                scale_x = p_width / float(wm['canvas_w'])
+                scale_y = p_height / float(wm['canvas_h'])
+                
+                text_x = float(wm['x']) * scale_x
+                text_y = float(wm['y']) * scale_y
+                f_size = float(wm['font_size']) * scale_x
+                
+                # Color conversion
+                hex_color = wm['color'].lstrip('#')
+                rgb = tuple(int(hex_color[k:k+2], 16)/255 for k in (0, 2, 4))
+
+                # Use insert_textbox for reliable centering
+                rect_width = p_width 
+                rect_height = f_size * 2
+                target_rect = fitz.Rect(
+                    text_x - rect_width/2, 
+                    text_y - rect_height/2, 
+                    text_x + rect_width/2, 
+                    text_y + rect_height/2
+                )
+                
+                page.insert_textbox(
+                    target_rect, 
+                    str(wm['text']), 
+                    fontsize=f_size,
+                    color=rgb,
+                    fontname=f"wm_{i}_{j}", 
+                    fontfile=font_path,
+                    rotate=0,
+                    align=1,
+                    overlay=True
+                )
         
         buf = io.BytesIO()
         doc.save(buf, garbage=3, deflate=True)
         doc.close()
         buf.seek(0)
         
-        print("DEBUG: Watermark processing complete, streaming response")
         from urllib.parse import quote
         safe_filename = quote(f"watermarked_{file.filename}")
-        
         return StreamingResponse(
             buf, 
             media_type="application/pdf",
@@ -159,7 +153,7 @@ async def process_watermark_pdf(
             }
         )
     except Exception as e:
-        print(f"DEBUG: Global error in watermark-pdf: {str(e)}")
+        print(f"DEBUG: Error in multi-watermark: {str(e)}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
