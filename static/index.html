@@ -44,6 +44,9 @@
                 <button onclick="loadService('/watermark-pdf')" class="service-btn">
                     <span class="icon">🖋️</span> <span id="menu-watermark">Watermark</span>
                 </button>
+                <button onclick="loadService('/image-to-pdf')" class="service-btn">
+                    <span class="icon">🖼️</span> <span id="menu-img2pdf">Image to PDF</span>
+                </button>
                 <button onclick="loadService('/pdf-compressor')" class="service-btn">
                     <span class="icon">📄</span> <span id="menu-shrink">Shrink PDF</span>
                 </button>
@@ -130,6 +133,7 @@
                 menuWrite: 'Write on PDF',
                 menuJoin: 'Join PDF',
                 menuWatermark: 'Watermark',
+                menuImg2Pdf: 'Image to PDF',
                 menuShrink: 'Shrink PDF',
                 labelImage: 'Image Tools',
                 menuStudio: 'Studio',
@@ -148,6 +152,7 @@
                 menuWrite: 'เขียนบน PDF',
                 menuJoin: 'รวมไฟล์ PDF',
                 menuWatermark: 'ใส่ลายน้ำ',
+                menuImg2Pdf: 'รูปภาพเป็น PDF',
                 menuShrink: 'ลดขนาด PDF',
                 labelImage: 'เครื่องมือรูปภาพ',
                 menuStudio: 'สตูดิโอออกแบบ',
@@ -182,6 +187,7 @@
             document.getElementById('menu-write').textContent = t.menuWrite;
             document.getElementById('menu-join').textContent = t.menuJoin;
             document.getElementById('menu-watermark').textContent = t.menuWatermark;
+            document.getElementById('menu-img2pdf').textContent = t.menuImg2Pdf;
             document.getElementById('menu-shrink').textContent = t.menuShrink;
             document.getElementById('menu-studio').textContent = t.menuStudio;
             document.getElementById('menu-crop').textContent = t.menuCrop;

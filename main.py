@@ -47,6 +47,41 @@ async def watermark_pdf_page():
     with open("static/watermark_pdf.html", "r") as f:
         return f.read()
 
+@app.get("/image-to-pdf", response_class=HTMLResponse)
+async def image_to_pdf_page():
+    with open("static/image_to_pdf.html", "r") as f:
+        return f.read()
+
+@app.post("/process-image-to-pdf")
+async def process_image_to_pdf(
+    files: list[UploadFile] = File(...)
+):
+    try:
+        images = []
+        for file in files:
+            contents = await file.read()
+            img = Image.open(io.BytesIO(contents))
+            # Convert all to RGB (required for PDF saving)
+            if img.mode != "RGB":
+                img = img.convert("RGB")
+            images.append(img)
+        
+        if not images:
+            raise ValueError("No images uploaded")
+
+        buf = io.BytesIO()
+        # Save first image and append the rest
+        images[0].save(buf, format="PDF", save_all=True, append_images=images[1:])
+        buf.seek(0)
+        
+        return StreamingResponse(
+            buf, 
+            media_type="application/pdf",
+            headers={"Content-Disposition": "attachment; filename=images_to_document.pdf"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/process-watermark-pdf")
 async def process_watermark_pdf(
     file: UploadFile = File(...),
