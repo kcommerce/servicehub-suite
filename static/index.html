@@ -67,6 +67,9 @@
                 <button onclick="loadService('/design-tool')" class="service-btn">
                     <span class="icon">🎨</span> <span id="menu-studio">Studio</span>
                 </button>
+                <button onclick="loadService('/image-editor')" class="service-btn">
+                    <span class="icon">🖌️</span> <span id="menu-editor">Image Editor</span>
+                </button>
                 <button onclick="loadService('/crop-service')" class="service-btn">
                     <span class="icon">✨</span> <span id="menu-crop">Crop</span>
                 </button>
@@ -82,9 +85,26 @@
                 <button onclick="loadService('/legal')" class="service-btn">
                     <span class="icon">⚖️</span> <span id="menu-legal">Legal</span>
                 </button>
-                <button class="service-btn disabled">
-                    <span class="icon">📁</span> <span id="menu-next">Next...</span>
-                </button>
+                
+                <!-- Utility Main Trigger -->
+                <div id="main-utility-trigger">
+                    <button onclick="switchMenuSet('utility')" class="service-btn" style="border-color: var(--portal-accent); color: var(--portal-accent);">
+                        <span class="icon">🛠️</span> <span id="menu-util">Utility</span>
+                    </button>
+                </div>
+
+                <!-- Utility Toolset (Hidden by default) -->
+                <div id="utility-toolset" style="display: none; align-items: center; gap: 0.5rem;">
+                    <button onclick="switchMenuSet('main')" class="service-btn">
+                        <span class="icon">⬅️</span> <span id="menu-back">Back</span>
+                    </button>
+                    <button onclick="loadService('/sequence-har')" class="service-btn">
+                        <span class="icon">📊</span> <span id="menu-har">HAR Sequence</span>
+                    </button>
+                    <button onclick="loadService('/web2pdf')" class="service-btn">
+                        <span class="icon">🌐</span> <span id="menu-web2pdf">Web to PDF</span>
+                    </button>
+                </div>
             </nav>
         </header>
         
@@ -156,18 +176,22 @@
                 menuShrink: 'Shrink PDF',
                 labelImage: 'Image Tools',
                 menuStudio: 'Studio',
+                menuEditor: 'Image Editor',
                 menuCrop: 'Crop',
                 menuRotate: 'Rotate',
                 menuConvert: 'Convert',
                 labelOther: 'Other',
                 menuLegal: 'Legal',
-                menuNext: 'Next...',
+                menuUtil: 'Utility',
+                menuBack: 'Back',
+                menuHar: 'HAR Sequence',
+                menuWeb2pdf: 'Web to PDF',
                 donateBtn: 'Support this project (Donate)'
             },
             th: {
                 langBtn: 'English',
                 welcomeH2: 'ยินดีต้อนรับสู่ ThaiEdit Pro',
-                welcomeP: 'เลือกเครื่องมือที่ต้องการจากเมนูด้านบนเพื่อเริ่มใช้งาน',
+                welcomeP: 'เลือกเครื่องมือที่ต้องการจากเมน้านบนเพื่อเริ่มใช้งาน',
                 labelPdf: 'เครื่องมือ PDF',
                 menuWrite: 'เขียนบน PDF',
                 menuJoin: 'รวมไฟล์ PDF',
@@ -176,15 +200,32 @@
                 menuShrink: 'ลดขนาด PDF',
                 labelImage: 'เครื่องมือรูปภาพ',
                 menuStudio: 'สตูดิโอออกแบบ',
+                menuEditor: 'ตัวแก้ไขรูปภาพ',
                 menuCrop: 'ครอบตัดรูป',
                 menuRotate: 'หมุน/กลับรูป',
                 menuConvert: 'แปลงไฟล์รูป',
                 labelOther: 'อื่นๆ',
                 menuLegal: 'กฎหมาย & นโยบาย',
-                menuNext: 'เพิ่มเติม...',
+                menuUtil: 'เครื่องมือสารพัดประโยชน์',
+                menuBack: 'กลับ',
+                menuHar: 'ลำดับ HAR',
+                menuWeb2pdf: 'เว็บเป็น PDF',
                 donateBtn: 'สนับสนุนโครงการนี้ (บริจาค)'
             }
         };
+
+        function switchMenuSet(set) {
+            const mainTrigger = document.getElementById('main-utility-trigger');
+            const utilityToolset = document.getElementById('utility-toolset');
+            
+            if (set === 'utility') {
+                mainTrigger.style.display = 'none';
+                utilityToolset.style.display = 'flex';
+            } else {
+                mainTrigger.style.display = 'block';
+                utilityToolset.style.display = 'none';
+            }
+        }
 
         function toggleLanguage() {
             currentLang = (currentLang === 'en') ? 'th' : 'en';
@@ -211,11 +252,15 @@
             document.getElementById('menu-img2pdf').textContent = t.menuImg2Pdf;
             document.getElementById('menu-shrink').textContent = t.menuShrink;
             document.getElementById('menu-studio').textContent = t.menuStudio;
+            document.getElementById('menu-editor').textContent = t.menuEditor;
             document.getElementById('menu-crop').textContent = t.menuCrop;
             document.getElementById('menu-rotate').textContent = t.menuRotate;
             document.getElementById('menu-convert').textContent = t.menuConvert;
             document.getElementById('menu-legal').textContent = t.menuLegal;
-            document.getElementById('menu-next').textContent = t.menuNext;
+            document.getElementById('menu-util').textContent = t.menuUtil;
+            document.getElementById('menu-back').textContent = t.menuBack;
+            document.getElementById('menu-har').textContent = t.menuHar;
+            document.getElementById('menu-web2pdf').textContent = t.menuWeb2pdf;
             document.getElementById('donate-text').textContent = t.donateBtn;
         }
 

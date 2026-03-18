@@ -245,6 +245,16 @@ async def image_converter_page():
     with open("static/image_converter.html", "r") as f:
         return f.read()
 
+@app.get("/image-editor", response_class=HTMLResponse)
+async def image_editor_page():
+    with open("static/image_editor.html", "r") as f:
+        return f.read()
+
+@app.get("/web2pdf", response_class=HTMLResponse)
+async def web2pdf_page():
+    with open("static/web2pdf.html", "r") as f:
+        return f.read()
+
 @app.post("/render-pdf")
 async def render_pdf(file: UploadFile = File(...)):
     import fitz  # PyMuPDF
@@ -420,6 +430,11 @@ async def design_tool_page():
 @app.get("/legal", response_class=HTMLResponse)
 async def legal_page():
     with open("static/legal.html", "r") as f:
+        return f.read()
+
+@app.get("/sequence-har", response_class=HTMLResponse)
+async def sequence_har_page():
+    with open("static/sequence_har.html", "r") as f:
         return f.read()
 
 @app.get("/ads.txt")

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAR Sequence Tool | ThaiEdit Pro</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js"></script>
+    <style>
+        body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        main { flex: 1; display: flex; overflow: hidden; background: #f0f2f5; }
+        
+        #diagram-view { flex: 1; overflow: auto; padding: 20px; }
+        #inspector-view { width: 450px; background: white; border-left: 1px solid #ddd; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
+        
+        .upload-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 100; background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 2px dashed #eee; }
+        
+        .mermaid { background: white; padding: 20px; border-radius: 8px; min-width: 800px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        pre { background: #272822; color: #f8f8f2; padding: 12px; border-radius: 8px; font-size: 11px; white-space: pre-wrap; word-break: break-all; margin-top: 5px; }
+        
+        h3 { border-bottom: 2px solid var(--primary); padding-bottom: 8px; font-size: 1.1rem; color: var(--primary); }
+        h4 { margin-top: 1.5rem; margin-bottom: 5px; font-size: 0.9rem; color: #2d3436; }
+        
+        .badge { background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 1rem; display: inline-block; }
+        
+        .inspector-placeholder { color: #adb5bd; text-align: center; margin-top: 5rem; font-style: italic; }
+        
+        /* Message interactions */
+        .messageText, .sequenceNumber { cursor: pointer !important; transition: font-weight 0.2s; }
+        .messageText:hover { font-weight: bold; fill: var(--primary) !important; }
+    </style>
+</head>
+<body>
+    <main>
+        <div id="diagram-view">
+            <div id="stats"></div>
+            <pre class="mermaid" id="diagram-container" style="display:none;"></pre>
+            
+            <div class="upload-overlay" id="uploadZone">
+                <label for="harFile" style="cursor: pointer;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">📦</div>
+                    <h2>Drop HAR file here</h2>
+                    <p style="color: #636e72;">Visualize your network sequences instantly</p>
+                    <input type="file" id="harFile" accept=".har" hidden>
+                </label>
+            </div>
+        </div>
+
+        <div id="inspector-view">
+            <h3>Transaction Inspector</h3>
+            <div id="placeholder" class="inspector-placeholder">Click a request arrow in the diagram to see details</div>
+            
+            <div id="details" style="display:none">
+                <div id="status-badge" style="margin-bottom: 1rem;"></div>
+                
+                <h4>Request</h4>
+                <p style="font-size: 0.85rem; font-weight: bold;"><span id="method"></span> <span id="url" style="font-weight: normal; color: #636e72;"></span></p>
+                
+                <b>Payload</b>
+                <pre id="reqPayload"></pre>
+                
+                <b>Headers</b>
+                <pre id="reqHeaders"></pre>
+
+                <h4>Response</h4>
+                <b>Body</b>
+                <pre id="resPayload"></pre>
+                
+                <b>Headers</b>
+                <pre id="resHeaders"></pre>
+            </div>
+
+            <!-- Ad in Inspector -->
+            <div style="margin-top: auto; padding-top: 2rem; text-align: center;">
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:300px;height:250px"
+                     data-ad-client="ca-pub-3619728042544494"
+                     data-ad-slot="1223926916"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: "loose",
+            maxTextSize: 1000000,
+            theme: "default"
+        });
+
+        let metadata = {};
+
+        function getReqPayload(entry) {
+            let post = entry.request.postData;
+            if (!post) return "No Payload";
+            if (post.text) return post.text;
+            if (post.params) return JSON.stringify(post.params, null, 2);
+            return "No Payload";
+        }
+
+        function getResPayload(entry) {
+            let content = entry.response.content || {};
+            let text = content.text || "";
+            if (!text) return "No Response Body";
+            try {
+                if (content.mimeType && content.mimeType.includes("json")) {
+                    text = JSON.stringify(JSON.parse(text), null, 2);
+                }
+            } catch (e) {}
+            if (text.length > 1000) {
+                text = text.substring(0, 500) + "\n\n[... content truncated ...]\n\n" + text.substring(text.length - 500);
+            }
+            return text;
+        }
+
+        document.getElementById("harFile").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const har = JSON.parse(evt.target.result);
+                    generateDiagram(har);
+                } catch(e) { alert("Invalid HAR format"); }
+            };
+            reader.readAsText(file);
+        });
+
+        function generateDiagram(har) {
+            let entries = har.log.entries;
+            metadata = {};
+            let hosts = {};
+            let hostCounter = 1;
+
+            entries.forEach(e => {
+                try {
+                    let url = new URL(e.request.url);
+                    let host = url.hostname;
+                    if (!hosts[host]) hosts[host] = "S" + hostCounter++;
+                } catch(err) {}
+            });
+
+            let mermaidCode = "sequenceDiagram\nautonumber\nparticipant C as Client\n";
+            for (const host in hosts) {
+                mermaidCode += `participant ${hosts[host]} as "${host}"\n`;
+            }
+
+            entries.forEach((entry, i) => {
+                try {
+                    let req = entry.request;
+                    let res = entry.response;
+                    let url = new URL(req.url);
+                    let alias = hosts[url.hostname];
+                    let path = url.pathname;
+                    let shortUrl = path.split("/").pop() || "/";
+                    if (shortUrl.length > 25) shortUrl = "..." + shortUrl.slice(-22);
+
+                    mermaidCode += `C->>${alias}: "${req.method} ${shortUrl}"\n`;
+                    mermaidCode += `${alias}-->>C: "${res.status}"\n`;
+
+                    let num = (i * 2) + 1;
+                    metadata[num] = {
+                        method: req.method,
+                        url: req.url,
+                        status: res.status,
+                        req_headers: Object.fromEntries(req.headers.map(h => [h.name, h.value])),
+                        req_payload: getReqPayload(entry),
+                        res_headers: Object.fromEntries(res.headers.map(h => [h.name, h.value])),
+                        res_payload: getResPayload(entry)
+                    };
+                } catch(e) {}
+            });
+
+            document.getElementById("uploadZone").style.display = "none";
+            const container = document.getElementById("diagram-container");
+            container.style.display = "block";
+            container.textContent = mermaidCode;
+            container.removeAttribute("data-processed");
+
+            document.getElementById("stats").innerHTML = `<span class="badge">Requests: ${entries.length}</span>`;
+
+            mermaid.init(undefined, "#diagram-container");
+            setTimeout(bindEvents, 1500);
+        }
+
+        function bindEvents() {
+            document.querySelectorAll(".messageText, .sequenceNumber")
+                .forEach(el => {
+                    let text = el.textContent || "";
+                    let match = text.match(/^\d+/);
+                    let num = match ? match[0] : null;
+                    if (num && metadata[num]) {
+                        el.style.cursor = "pointer";
+                        el.onclick = () => showDetails(num);
+                    }
+                });
+        }
+
+        function showDetails(num) {
+            let data = metadata[num];
+            document.getElementById("placeholder").style.display = "none";
+            document.getElementById("details").style.display = "block";
+
+            document.getElementById("method").textContent = data.method;
+            document.getElementById("url").textContent = data.url;
+            document.getElementById("reqPayload").textContent = data.req_payload;
+            document.getElementById("reqHeaders").textContent = JSON.stringify(data.req_headers, null, 2);
+            
+            const badge = document.getElementById("status-badge");
+            badge.textContent = "Status: " + data.status;
+            badge.className = data.status >= 400 ? 'status-err' : 'status-ok';
+            badge.style.color = data.status >= 400 ? 'red' : 'green';
+            badge.style.fontWeight = 'bold';
+
+            document.getElementById("resPayload").textContent = data.res_payload;
+            document.getElementById("resHeaders").textContent = JSON.stringify(data.res_headers, null, 2);
+        }
+    </script>
+</body>
+</html>

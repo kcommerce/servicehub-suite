@@ -24,6 +24,11 @@ ThaiEdit Pro is built upon amazing open-source software. For maximum transparenc
 - **License:** MIT
 - **Full Text:** [licenses/LICENSE-CROPPERJS.txt](licenses/LICENSE-CROPPERJS.txt)
 
+### Fabric.js
+- **License:** MIT
+- **Project:** https://github.com/fabricjs/fabric.js
+- **Copyright:** (c) 2008-2023 Fabric.js contributors
+
 ---
 
 ## 🌐 Web & Backend
@@ -37,6 +42,22 @@ ThaiEdit Pro is built upon amazing open-source software. For maximum transparenc
 ### Sarabun Font
 - **License:** SIL Open Font License 1.1
 - **Full Text:** [licenses/LICENSE-SARABUN.txt](licenses/LICENSE-SARABUN.txt)
+
+---
+
+## 🛠️ Utility & Analysis
+### Mermaid.js
+- **License:** MIT
+- **Project:** https://github.com/mermaid-js/mermaid
+
+### jsPDF
+- **License:** MIT
+- **Project:** https://github.com/parallax/jsPDF
+- **Official Page:** https://parall.ax/products/jspdf
+
+### html2canvas
+- **License:** MIT
+- **Project:** https://github.com/niklasvh/html2canvas
 
 ---
 
