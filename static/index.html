@@ -15,8 +15,8 @@
     <meta property="og:image" content="https://thaiedit.com/static/stickers/wow.png">
 
     <title>ThaiEdit Pro | Universal Editor Suite</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/portal.css?v=1.2.3">
-    <link rel="stylesheet" type="text/css" href="/static/css/style.css?v=1.2.3">
+    <link rel="stylesheet" type="text/css" href="/static/css/portal.css?v=1.3.0">
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css?v=1.3.0">
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3619728042544494" crossorigin="anonymous"></script>
 </head>
@@ -37,6 +37,13 @@
             </div>
 
             <nav class="service-nav">
+                <!-- Theme Switcher -->
+                <div style="margin-right: 1rem;">
+                    <button onclick="toggleTheme()" class="service-btn" style="border-color: #636e72; color: #636e72; padding: 0.6rem;">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+                </div>
+
                 <!-- Language Switcher -->
                 <div style="margin-right: 1rem;">
                     <button onclick="toggleLanguage()" class="service-btn" style="border-color: #636e72; color: #636e72;">
@@ -44,47 +51,50 @@
                     </button>
                 </div>
 
-                <!-- PDF SECTION -->
-                <div class="nav-group-label" id="label-pdf">PDF Tools</div>
-                <button onclick="loadService('/edit-pdf')" class="service-btn">
-                    <span class="icon">✍️</span> <span id="menu-write">Write on PDF</span>
-                </button>
-                <button onclick="loadService('/merge-pdf')" class="service-btn">
-                    <span class="icon">📑</span> <span id="menu-join">Join PDF</span>
-                </button>
-                <button onclick="loadService('/watermark-pdf')" class="service-btn">
-                    <span class="icon">🖋️</span> <span id="menu-watermark">Watermark</span>
-                </button>
-                <button onclick="loadService('/image-to-pdf')" class="service-btn">
-                    <span class="icon">🖼️</span> <span id="menu-img2pdf">Image to PDF</span>
-                </button>
-                <button onclick="loadService('/pdf-compressor')" class="service-btn">
-                    <span class="icon">📄</span> <span id="menu-shrink">Shrink PDF</span>
-                </button>
+                <!-- MAIN TOOLSET (Hides when Utility is active) -->
+                <div id="main-toolset" style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;">
+                    <!-- PDF SECTION -->
+                    <div class="nav-group-label" id="label-pdf">PDF Tools</div>
+                    <button onclick="loadService('/edit-pdf')" class="service-btn">
+                        <span class="icon">✍️</span> <span id="menu-write">Write on PDF</span>
+                    </button>
+                    <button onclick="loadService('/merge-pdf')" class="service-btn">
+                        <span class="icon">📑</span> <span id="menu-join">Join PDF</span>
+                    </button>
+                    <button onclick="loadService('/watermark-pdf')" class="service-btn">
+                        <span class="icon">🖋️</span> <span id="menu-watermark">Watermark</span>
+                    </button>
+                    <button onclick="loadService('/image-to-pdf')" class="service-btn">
+                        <span class="icon">🖼️</span> <span id="menu-img2pdf">Image to PDF</span>
+                    </button>
+                    <button onclick="loadService('/pdf-compressor')" class="service-btn">
+                        <span class="icon">📄</span> <span id="menu-shrink">Shrink PDF</span>
+                    </button>
 
-                <!-- IMAGE SECTION -->
-                <div class="nav-group-label" id="label-image">Image Tools</div>
-                <button onclick="loadService('/design-tool')" class="service-btn">
-                    <span class="icon">🎨</span> <span id="menu-studio">Studio</span>
-                </button>
-                <button onclick="loadService('/image-editor')" class="service-btn">
-                    <span class="icon">🖌️</span> <span id="menu-editor">Image Editor</span>
-                </button>
-                <button onclick="loadService('/crop-service')" class="service-btn">
-                    <span class="icon">✨</span> <span id="menu-crop">Crop</span>
-                </button>
-                <button onclick="loadService('/rotate-flip')" class="service-btn">
-                    <span class="icon">🔄</span> <span id="menu-rotate">Rotate</span>
-                </button>
-                <button onclick="loadService('/image-converter')" class="service-btn">
-                    <span class="icon">🔄</span> <span id="menu-convert">Convert</span>
-                </button>
+                    <!-- IMAGE SECTION -->
+                    <div class="nav-group-label" id="label-image">Image Tools</div>
+                    <button onclick="loadService('/design-tool')" class="service-btn">
+                        <span class="icon">🎨</span> <span id="menu-studio">Studio</span>
+                    </button>
+                    <button onclick="loadService('/image-editor')" class="service-btn">
+                        <span class="icon">🖌️</span> <span id="menu-editor">Image Editor</span>
+                    </button>
+                    <button onclick="loadService('/crop-service')" class="service-btn">
+                        <span class="icon">✨</span> <span id="menu-crop">Crop</span>
+                    </button>
+                    <button onclick="loadService('/rotate-flip')" class="service-btn">
+                        <span class="icon">🔄</span> <span id="menu-rotate">Rotate</span>
+                    </button>
+                    <button onclick="loadService('/image-converter')" class="service-btn">
+                        <span class="icon">🔄</span> <span id="menu-convert">Convert</span>
+                    </button>
 
-                <!-- UTILITY SECTION -->
-                <div class="nav-group-label" id="label-other">Other</div>
-                <button onclick="loadService('/legal')" class="service-btn">
-                    <span class="icon">⚖️</span> <span id="menu-legal">Legal</span>
-                </button>
+                    <!-- UTILITY SECTION -->
+                    <div class="nav-group-label" id="label-other">Other</div>
+                    <button onclick="loadService('/legal')" class="service-btn">
+                        <span class="icon">⚖️</span> <span id="menu-legal">Legal</span>
+                    </button>
+                </div>
                 
                 <!-- Misc Main Trigger -->
                 <div id="main-utility-trigger">
@@ -100,9 +110,6 @@
                     </button>
                     <button onclick="loadService('/sequence-har')" class="service-btn">
                         <span class="icon">📊</span> <span id="menu-har">HAR Sequence</span>
-                    </button>
-                    <button onclick="loadService('/web2pdf')" class="service-btn">
-                        <span class="icon">🌐</span> <span id="menu-web2pdf">Web to PDF</span>
                     </button>
                 </div>
             </nav>
@@ -185,7 +192,6 @@
                 menuUtil: 'Misc',
                 menuBack: 'Back',
                 menuHar: 'HAR Sequence',
-                menuWeb2pdf: 'Web to PDF',
                 donateBtn: 'Support this project (Donate)'
             },
             th: {
@@ -209,7 +215,6 @@
                 menuUtil: 'อื่นๆ',
                 menuBack: 'กลับ',
                 menuHar: 'ลำดับ HAR',
-                menuWeb2pdf: 'เว็บเป็น PDF',
                 donateBtn: 'สนับสนุนโครงการนี้ (บริจาค)'
             }
         };
@@ -217,15 +222,70 @@
         function switchMenuSet(set) {
             const mainTrigger = document.getElementById('main-utility-trigger');
             const utilityToolset = document.getElementById('utility-toolset');
+            const mainToolset = document.getElementById('main-toolset');
             
             if (set === 'utility') {
                 mainTrigger.style.display = 'none';
+                mainToolset.style.display = 'none';
                 utilityToolset.style.display = 'flex';
             } else {
                 mainTrigger.style.display = 'block';
+                mainToolset.style.display = 'flex';
                 utilityToolset.style.display = 'none';
             }
         }
+
+        // Theme Toggle Logic
+        function getBangkokHour() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const bkkTime = new Date(utc + (3600000 * 7));
+            return bkkTime.getHours();
+        }
+
+        function initTheme() {
+            const saved = localStorage.getItem('theme');
+            if (saved) {
+                setTheme(saved);
+                return;
+            }
+            const bkkHour = getBangkokHour();
+            if (bkkHour >= 6 && bkkHour < 18) {
+                setTheme('light');
+            } else {
+                setTheme('dark');
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'light' ? 'dark' : 'light';
+            setTheme(next);
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            const icon = document.getElementById('theme-icon');
+            if(icon) {
+                icon.textContent = theme === 'light' ? '🌙' : '☀️';
+            }
+            const iframe = document.getElementById('service-content');
+            if (iframe && iframe.contentWindow) {
+                try {
+                    iframe.contentWindow.document.documentElement.setAttribute('data-theme', theme);
+                } catch(e) {}
+            }
+        }
+
+        document.getElementById('service-content').addEventListener('load', function() {
+            const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+            try {
+                this.contentWindow.document.documentElement.setAttribute('data-theme', theme);
+            } catch(e) {}
+        });
+
+        initTheme();
 
         function toggleLanguage() {
             currentLang = (currentLang === 'en') ? 'th' : 'en';
@@ -260,7 +320,6 @@
             document.getElementById('menu-util').textContent = t.menuUtil;
             document.getElementById('menu-back').textContent = t.menuBack;
             document.getElementById('menu-har').textContent = t.menuHar;
-            document.getElementById('menu-web2pdf').textContent = t.menuWeb2pdf;
             document.getElementById('donate-text').textContent = t.donateBtn;
         }
 

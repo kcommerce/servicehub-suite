@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Watermark PDF | ThaiEdit Pro</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v=1.3.0">
     <style>
         body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         main { flex: 1; display: flex; overflow: hidden; }
-        .sidebar { width: 350px; background: #fff; border-right: 1px solid #eee; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; overflow-y: auto; }
-        .canvas-container { flex: 1; background: #e9ecef; padding: 2rem; overflow: auto; position: relative; display: block; }
+        .sidebar { width: 350px;   padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; overflow-y: auto; }
+        .canvas-container { flex: 1;  padding: 2rem; overflow: auto; position: relative; display: block; }
         .page-wrapper { position: relative; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin: 0 auto; display: block; }
         canvas { display: block; cursor: crosshair; }
         .control-item { display: flex; flex-direction: column; gap: 0.4rem; text-align: left; }
@@ -19,7 +19,7 @@
         .color-box { flex: 1; height: 40px; border-radius: 4px; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; }
         .color-presets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
         .swatch { height: 25px; border-radius: 4px; border: 1px solid #eee; cursor: pointer; }
-        .hint { font-size: 0.8rem; color: #636e72; background: #fff9db; padding: 0.8rem; border-radius: 8px; border-left: 4px solid #fcc419; margin-bottom: 1rem; }
+        .hint { font-size: 0.8rem; color: #636e72; 9db; padding: 0.8rem; border-radius: 8px; border-left: 4px solid #fcc419; margin-bottom: 1rem; }
         .loader-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; }
         .process-info { font-size: 0.75rem; color: #999; margin-top: 0.8rem; text-align: center; line-height: 1.4; }
     </style>
