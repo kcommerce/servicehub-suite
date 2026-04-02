@@ -96,6 +96,9 @@
                     <button onclick="loadService('/image-converter')" class="service-btn">
                         <span class="icon">🔄</span> <span id="menu-convert">Convert</span>
                     </button>
+                    <button onclick="loadService('/image-to-text')" class="service-btn">
+                        <span class="icon">📝</span> <span id="menu-img2txt">Image2Txt</span>
+                    </button>
 
                     <!-- UTILITY SECTION -->
                     <div class="nav-group-label" id="label-other">Other</div>
@@ -309,6 +312,17 @@
         });
 
         initTheme();
+
+        // Expand menu by default on first load
+        window.addEventListener('DOMContentLoaded', () => {
+            const menu = document.getElementById('collapsible-menus');
+            const icon = document.getElementById('mobile-menu-icon');
+            if (menu && !isMobileMenuOpen) {
+                menu.classList.add('expanded');
+                isMobileMenuOpen = true;
+                if(icon) icon.textContent = '✖';
+            }
+        });
 
         function toggleLanguage() {
             currentLang = (currentLang === 'en') ? 'th' : 'en';

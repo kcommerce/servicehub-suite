@@ -52,6 +52,11 @@ async def image_to_pdf_page():
     with open("static/image_to_pdf.html", "r") as f:
         return f.read()
 
+@app.get("/image-to-text", response_class=HTMLResponse)
+async def image_to_text_page():
+    with open("static/image_to_text.html", "r") as f:
+        return f.read()
+
 @app.post("/process-image-to-pdf")
 async def process_image_to_pdf(
     files: list[UploadFile] = File(...)
